@@ -1,0 +1,22 @@
+#https://github.com/github/gitignore/blob/master/Yii.gitignore
+assets/*
+!assets/.gitignore
+protected/runtime/*
+!protected/runtime/.gitignore
+protected/data/*.db
+themes/classic/views/
+
+# https://github.com/phonegap/phonegap-app-developer/blob/master/.gitignore
+# Mac
+.DS_Store
+
+# Node
+npm-debug.log
+node_modules
+
+# Cordova
+/mobile/platforms
+/mobile/plugins
+
+# res
+resources/signing
