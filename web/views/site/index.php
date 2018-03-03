@@ -2,7 +2,10 @@
 
 /* @var $this yii\web\View */
 
-$this->title = 'My Yii Application';
+$this->title = 'My Yii Application FUCK';
+
+echo \yii\helpers\Url::to('/user/admin/index');
+
 ?>
 <div class="site-index">
 

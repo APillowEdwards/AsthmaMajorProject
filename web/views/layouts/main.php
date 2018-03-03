@@ -38,21 +38,42 @@ AppAsset::register($this);
     echo Nav::widget([
         'options' => ['class' => 'navbar-nav navbar-right'],
         'items' => [
-            ['label' => 'Home', 'url' => ['/site/index']],
-            ['label' => 'About', 'url' => ['/site/about']],
-            ['label' => 'Contact', 'url' => ['/site/contact']],
-            Yii::$app->user->isGuest ? (
-                ['label' => 'Login', 'url' => ['/site/login']]
-            ) : (
-                '<li>'
-                . Html::beginForm(['/site/logout'], 'post')
-                . Html::submitButton(
-                    'Logout (' . Yii::$app->user->identity->username . ')',
-                    ['class' => 'btn btn-link logout']
-                )
-                . Html::endForm()
-                . '</li>'
-            )
+            [
+                'label' => 'Medication',
+                'url' => ['/medication/index'],
+                'visible' => (!Yii::$app->user->isGuest),
+            ],
+            [
+                'label' => 'New Dose',
+                'url' => ['/dose/create'],
+                'visible' => (!Yii::$app->user->isGuest && !Yii::$app->user->identity->isAdmin),
+            ],
+            [
+                'label' => 'Doses',
+                'url' => ['/dose/index'],
+                'visible' => (!Yii::$app->user->isGuest && Yii::$app->user->identity->isAdmin),
+            ],
+            [
+                'label' => 'Your Profile',
+                'url' => ['/user/' . (Yii::$app->user->isGuest ? '' : Yii::$app->user->identity->id)],
+                'visible' => (!Yii::$app->user->isGuest),
+            ],
+            [
+                'label' => 'Admin Panel',
+                'url' => ['/user/admin/index'],
+                'visible' => (!Yii::$app->user->isGuest && Yii::$app->user->identity->isAdmin),
+            ],
+            [
+                'label' => 'Login',
+                'url' => ['/user/security/login'],
+                'visible' => Yii::$app->user->isGuest,
+            ],
+            [
+                'label' => 'Logout (' . (Yii::$app->user->isGuest ? '' : Yii::$app->user->identity->username . ')'),
+                'url' => ['user/security/logout'],
+                'linkOptions' => ['data-method' => 'post'],
+                'visible' => (!Yii::$app->user->isGuest),
+            ],
         ],
     ]);
     NavBar::end();
@@ -63,7 +84,9 @@ AppAsset::register($this);
             'links' => isset($this->params['breadcrumbs']) ? $this->params['breadcrumbs'] : [],
         ]) ?>
         <?= Alert::widget() ?>
+
         <?= $content ?>
+
     </div>
 </div>
 
