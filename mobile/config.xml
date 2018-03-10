@@ -2,10 +2,10 @@
 <widget id="com.adwards.asthma" version="1.0.0" xmlns="http://www.w3.org/ns/widgets" xmlns:gap="http://phonegap.com/ns/1.0">
     <name>Asthma</name>
     <description>
-        Hello World sample application that responds to the deviceready event.
+        Asthma tracker application for Major Project
     </description>
-    <author email="support@phonegap.com" href="http://phonegap.com">
-        PhoneGap Team
+    <author email="" href="">
+        Andrew Edwards
     </author>
     <content src="index.html" />
     <preference name="DisallowOverscroll" value="true" />
