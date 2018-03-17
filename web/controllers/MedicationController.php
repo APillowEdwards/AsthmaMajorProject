@@ -5,10 +5,11 @@ namespace app\controllers;
 use Yii;
 use app\models\Medication;
 use dektrium\user\models\User;
-use yii\filters\AccessControl;
+use yii\behaviors\TimestampBehavior;
 use yii\data\ActiveDataProvider;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
+use yii\filters\AccessControl;
 use yii\filters\VerbFilter;
 
 /**
@@ -22,6 +23,9 @@ class MedicationController extends Controller
     public function behaviors()
     {
         return [
+	    [
+		'class' => TimestampBehavior::className(),
+	    ],
             'access' => [
                 'class' => AccessControl::className(),
                 'only' => ['index', 'create', 'view', 'update', 'delete'],

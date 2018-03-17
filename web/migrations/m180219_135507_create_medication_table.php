@@ -22,11 +22,13 @@ class m180219_135507_create_medication_table extends Migration
             'type' => $this->string()->notNull(),
             'amount' => $this->decimal()->notNull(),
             'unit' => $this->string()->notNull(),
+	    'updated_at' => 'TIMESTAMP ON UPDATE CURRENT_TIMESTAMP DEFAULT CURRENT_TIMESTAMP',
+	    'created_at' => 'TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP',
         ]);
 
         // creates index for column `user_id`
         $this->createIndex(
-            'idx-medication-user_id',
+            'idx-medication-user_id',	
             'medication',
             'user_id'
         );

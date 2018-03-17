@@ -27,21 +27,16 @@
     <meta name="msapplication-tap-highlight" content="no" />
     <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width" />
     <meta http-equiv="Content-Security-Policy" content="default-src * 'unsafe-inline'; style-src 'self' 'unsafe-inline'; media-src *" />
-    <link rel="stylesheet" type="text/css" href="css/bootstrap.min.css" />
-    <link rel="stylesheet" type="text/css" href="css/entypo.css" />
-    <link rel="stylesheet" type="text/css" href="css/index.css" />
+    <link rel="stylesheet" type="text/css" href="../css/bootstrap.min.css" />
+    <link rel="stylesheet" type="text/css" href="../css/entypo.css" />
+    <link rel="stylesheet" type="text/css" href="../css/index.css" />
     <title>Asthma Tracker</title>
 </head>
 
 <body class="text-center">
     <div class="app">
-	<h1>AsthmaTracker</h1>
-	<a href="medication/index.html" class="btn btn-lg btn-primary btn-block">My Medication <span class="entypo-list"></span></a>
-    <a href="doses/index.html" class="btn btn-lg btn-primary btn-block">Record Doses <span class="entypo-droplet"></span></a>
-	<a href="" class="btn btn-lg btn-primary btn-block">Record a Flare Up <span class="entypo-newspaper"></span></a>
-	<a href="" class="btn btn-lg btn-primary btn-block">Settings <span class="entypo-tools"></span></a>
-    <a href="#" class="btn btn-lg btn-primary btn-block sync-button">Sync <span class="entypo-up"></span><span class="entypo-down"></span></a>
-    <br />
+        <h1>Record Doses</h1>
+        <div class="medication-tables" data-mode="addDose"></div>
     </div>
     <!-- Navbar -->
     <nav class="navbar fixed-bottom navbar-expand-sm navbar-dark bg-dark">
@@ -58,10 +53,10 @@
         <div class="collapse navbar-collapse" id="navbarCollapse">
             <ul class="navbar-nav mr-auto">
                 <li class="nav-item">
-                    <a class="nav-link" href="dashboard.html">Home</a>
+                    <a class="nav-link" href="../dashboard.html">Home</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="index.html">Sign Out <span class="entypo-back"></span></a>
+                    <a class="nav-link" href="../index.html">Sign Out <span class="entypo-back"></span></a>
                 </li>
                 <!--
                 <li class="nav-item">
@@ -81,10 +76,10 @@
             </ul>
         </div>
     </nav>
-    <script type="text/javascript" src="cordova.js"></script>
-    <script type="text/javascript" src="js/jquery.min.js"></script>
-    <script type="text/javascript" src="js/bootstrap.min.js"></script>
-    <script type="text/javascript" src="js/index.js"></script>
+    <script type="text/javascript" src="../cordova.js"></script>
+    <script type="text/javascript" src="../js/jquery.min.js"></script>
+    <script type="text/javascript" src="../js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="../js/index.js"></script>
 </body>
 
 </html>

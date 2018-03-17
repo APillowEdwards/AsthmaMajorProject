@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<!--
+    Copyright (c) 2012-2016 Adobe Systems Incorporated. All rights reserved.
+
+    Licensed to the Apache Software Foundation (ASF) under one
+    or more contributor license agreements.  See the NOTICE file
+    distributed with this work for additional information
+    regarding copyright ownership.  The ASF licenses this file
+    to you under the Apache License, Version 2.0 (the
+    "License"); you may not use this file except in compliance
+    with the License.  You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing,
+    software distributed under the License is distributed on an
+    "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+     KIND, either express or implied.  See the License for the
+    specific language governing permissions and limitations
+    under the License.
+-->
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="format-detection" content="telephone=no" />
+    <meta name="msapplication-tap-highlight" content="no" />
+    <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width" />
+    <meta http-equiv="Content-Security-Policy" content="default-src * 'unsafe-inline'; style-src 'self' 'unsafe-inline'; media-src *" />
+    <link rel="stylesheet" type="text/css" href="../css/bootstrap.min.css" />
+    <link rel="stylesheet" type="text/css" href="../css/entypo.css" />
+    <link rel="stylesheet" type="text/css" href="../css/index.css" />
+    <title>Asthma Tracker</title>
+</head>
+
+<body class="text-center">
+    <div class="app">
+        <h1>Adding new Medication</h1>
+        <form>
+            <label for="inputName">Name</label>
+            <input type="text" id="inputName" class="form-control" placeholder="Name" required autofocus>
+            <label for="inputType">Type</label>
+            <br />
+            <div id="inputType" class="btn-group" data-toggle="buttons">
+                <label class="btn btn-primary active"onclick="$('.reminder-form').addClass('d-none')">
+                    <input type="radio" name="type" id="inputTypeReliever" autocomplete="off" value="reliever" checked> Reliever
+                </label>
+                <label class="btn btn-primary" onclick="$('.reminder-form').removeClass('d-none')">
+                    <input type="radio" name="type" id="inputTypePreventer" autocomplete="off" value="preventer"> Preventer
+                </label>
+                <label class="btn btn-primary" onclick="$('.reminder-form').removeClass('d-none')">
+                    <input type="radio" name="type" id="inputTypeOther" autocomplete="off" value="other"> Other
+                </label>
+            </div>
+            <br />
+            <label for="inputDoseSize">Doseage</label>
+            <div class="row no-gutters">
+                <div class="col-6">
+                    <input type="number" id="inputAmount" class="form-control text-right" placeholder="Dose Size" required>
+                </div>
+                <div class="col-6">
+                    <input type="text" id="inputUnit" class="form-control text-left" placeholder="Unit" required>
+                </div>
+            </div>
+            <div class="reminder-form d-none">
+                <br />
+                <h2>Reminder(s)</h2>
+                <br />
+                <label for="inputReminderFrequency">Frequency</label>
+                <br />
+                <div id="inputReminderFrequency" class="btn-group" data-toggle="buttons">
+                    <label class="btn btn-primary active" onclick="$('.inputReminderAt2').addClass('d-none');$('.inputReminderAt3').addClass('d-none');$('.inputReminderAt4').addClass('d-none');">
+                        <input type="radio" name="reminder-frequency" id="inputReminderFrequency1" autocomplete="off" value="1" checked> 1/Day
+                    </label>
+                    <label class="btn btn-primary" onclick="$('.inputReminderAt2').removeClass('d-none');$('.inputReminderAt3').addClass('d-none');$('.inputReminderAt4').addClass('d-none');">
+                        <input type="radio" name="reminder-frequency" id="inputReminderFrequency2" autocomplete="off" value="2"> 2/Day
+                    </label>
+                    <label class="btn btn-primary" onclick="$('.inputReminderAt2').removeClass('d-none');$('.inputReminderAt3').removeClass('d-none');$('.inputReminderAt4').addClass('d-none');">
+                        <input type="radio" name="reminder-frequency" id="inputReminderFrequency3" autocomplete="off" value="3"> 3/Day
+                    </label>
+                    <label class="btn btn-primary" onclick="$('.inputReminderAt2').removeClass('d-none');$('.inputReminderAt3').removeClass('d-none');$('.inputReminderAt4').removeClass('d-none');">
+                        <input type="radio" name="reminder-frequency" id="inputReminderFrequency3" autocomplete="off" value="4"> 4/Day
+                    </label>
+                </div>
+                <div class="inputReminderAt1">
+                    <label for="inputReminderAt1">...at...</label>
+                    <input type="time" id="inputReminderAt1" class="form-control" placeholder="Dose Size">
+                </div>
+                <div class="inputReminderAt2 d-none">
+                    <label for="inputReminderAt2">...and...</label>
+                    <input type="time" id="inputReminderAt2" class="form-control" placeholder="Dose Size">
+                </div>
+                <div class="inputReminderAt3 d-none">
+                    <label for="inputReminderAt3">...and...</label>
+                    <input type="time" id="inputReminderAt3" class="form-control" placeholder="Dose Size">
+                </div>
+                <div class="inputReminderAt4 d-none">
+                    <label for="inputReminderAt4">...and...</label>
+                    <input type="time" id="inputReminderAt4" class="form-control" placeholder="Dose Size">
+                </div>
+            </div>
+            <br />
+            <a href="#" class="btn btn-lg btn-primary btn-block save-medication-button">Save <span class="entypo-floppy"></span></a>
+        </form>
+    </div>
+    <!-- Navbar -->
+    <nav class="navbar fixed-bottom navbar-expand-sm navbar-dark bg-dark">
+        <div class="centre">
+            <button class="navbar-toggler" type="button" onclick="$('#navbar-toggler-label-open').toggleClass('d-none');$('#navbar-toggler-label-close').toggleClass('d-none');" data-toggle="collapse" data-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
+                <div id="navbar-toggler-label-open">
+                    <span class="entypo-up-open"></span>&nbsp;Open Menu<span class="entypo-up-open"></span>
+                </div>
+                <div id="navbar-toggler-label-close" class="d-none">
+                    <span class="entypo-down-open"></span>&nbsp;Close Menu<span class="entypo-down-open"></span>
+                </div>
+            </button>
+        </div>
+        <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav mr-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="../dashboard.html">Home</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="../index.html">Sign Out <span class="entypo-back"></span></a>
+                </li>
+                <!--
+                <li class="nav-item">
+                    <a class="nav-link disabled" href="#">Disabled</a>
+                </li>
+                -->
+                <!--
+                <li class="nav-item dropup">
+                    <a class="nav-link dropdown-toggle" href="https://getbootstrap.com" id="dropdown10" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Dropup</a>
+                    <div class="dropdown-menu" aria-labelledby="dropdown10">
+                        <a class="dropdown-item" href="#">Action</a>
+                        <a class="dropdown-item" href="#">Another action</a>
+                        <a class="dropdown-item" href="#">Something else here</a>
+                    </div>
+                </li>
+                -->
+            </ul>
+        </div>
+    </nav>
+    <script type="text/javascript" src="../cordova.js"></script>
+    <script type="text/javascript" src="../js/jquery.min.js"></script>
+    <script type="text/javascript" src="../js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="../js/index.js"></script>
+</body>
+
+</html>

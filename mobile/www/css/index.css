@@ -1,7 +1,32 @@
 [class*="entypo-"]:before {
     font-family: 'entypo', sans-serif;
 }
+body, html {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+body:not(.no-nav) > .app {
+    padding-bottom: 65px;
+}
+
+.row {
+    /*padding-left: 15px;*/
+    margin: 0;
+}
+
+.vertical-centre {
+    min-height: 100%;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+}
 
 .centre {
     margin: auto;
+}
+
+.table .btn {
+
 }

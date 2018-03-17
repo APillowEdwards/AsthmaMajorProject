@@ -38,9 +38,11 @@ class Medication extends \yii\db\ActiveRecord
             return false;
         }
 
+        /* Commenting this out until login works
         if ( $this->user->id != Yii::$app->user->id && !Yii::$app->user->identity->isAdmin ) {
             return false;
         }
+        */
         return true;
     }
 
@@ -54,9 +56,11 @@ class Medication extends \yii\db\ActiveRecord
             return false;
         }
 
+        /* Commenting this out until login works
         if ( $this->user->id != Yii::$app->user->id && !Yii::$app->user->identity->isAdmin ) {
             return false;
         }
+        */
         return true;
     }
 
