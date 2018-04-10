@@ -12,8 +12,16 @@ class MedicationController extends ActiveController
 
     public function behaviours()
     {
-	$behaviors = parent::behaviors();
-	$behaviors[] = TimestampBehaviour::className();
-	return $behaviors;
+        return ArrayHelper::merge([
+            'corsFilter' => [
+                'class' => Cors::className(),
+                'cors' => [
+                    'Origin' => ['*'],
+                ],
+            ],
+            'timestampFilter' => [
+                'class' => TimestampBehaviour::className(),
+            ],
+        ], parent::behaviours());
     }
 }

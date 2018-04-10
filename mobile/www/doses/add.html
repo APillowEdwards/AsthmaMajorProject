@@ -35,21 +35,25 @@
 
 <body class="text-center">
     <div class="app">
-        <h1>Your Medication</h1>
-        <a href="add.html" class="btn btn-primary">Add Medication <span class="entypo-pencil"></span></a>
-        <hr />
-        <div class="medication-tables" data-mode="editMedication"></div>
+        <h1>Adding Dose for <span class="medication-name"></span></h1>
+        <p>Each dose is <span class="medication-dose-size"></span>
+        <form class="load-medication-dose-form">
+            <label for="inputDoseAmount">Dose Size (e.g. 1 for <span class="medication-dose-size"></span>, 0.5 for half of that)</label>
+            <input type="number" id="inputDoseAmount" class="form-control text-right" placeholder="Dose Size" required>
+            <br />
+            <a href="#" class="btn btn-lg btn-primary btn-block save-dose-button">Save <span class="entypo-floppy"></span></a>
+        </form>
     </div>
     <!-- Navbar -->
     <nav class="navbar fixed-bottom navbar-expand-sm navbar-dark bg-dark">
         <div class="centre">
             <button class="navbar-toggler" type="button" onclick="$('#navbar-toggler-label-open').toggleClass('d-none');$('#navbar-toggler-label-close').toggleClass('d-none');" data-toggle="collapse" data-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
                 <div id="navbar-toggler-label-open">
-        			<span class="entypo-up-open"></span>&nbsp;Open Menu<span class="entypo-up-open"></span>
-        		</div>
-        		<div id="navbar-toggler-label-close" class="d-none">
-        			<span class="entypo-down-open"></span>&nbsp;Close Menu<span class="entypo-down-open"></span>
-        		</div>
+                    <span class="entypo-up-open"></span>&nbsp;Open Menu<span class="entypo-up-open"></span>
+                </div>
+                <div id="navbar-toggler-label-close" class="d-none">
+                    <span class="entypo-down-open"></span>&nbsp;Close Menu<span class="entypo-down-open"></span>
+                </div>
             </button>
         </div>
         <div class="collapse navbar-collapse" id="navbarCollapse">

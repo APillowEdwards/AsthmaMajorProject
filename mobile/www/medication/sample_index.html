@@ -38,18 +38,61 @@
         <h1>Your Medication</h1>
         <a href="add.html" class="btn btn-primary">Add Medication <span class="entypo-pencil"></span></a>
         <hr />
-        <div class="medication-tables" data-mode="editMedication"></div>
+        <h2>Reliever Medication</h2>
+        <table class="table btn-table">
+            <thead>
+                <tr>
+                    <th scope="col">Name</th>
+                    <th scope="col">Dose Size</th>
+                    <th scope="col">Edit</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <th scope="row">Seretide</th>
+                    <th>30mg</th>
+                    <th><a href="edit.html" class="btn btn-primary">Edit <span class="entypo-pencil"></span></th>
+                </tr>
+                <tr>
+                    <th scope="row">Sirdupla</th>
+                    <th>25mg</th>
+                    <th><a href="edit.html" class="btn btn-primary">Edit <span class="entypo-pencil"></span></th>
+                </tr>
+            </tbody>
+        </table>
+        <h2>Preventer Medication</h2>
+        <table class="table btn-table">
+            <thead>
+                <tr>
+                    <th scope="col">Name</th>
+                    <th scope="col">Dose Size</th>
+                    <th scope="col">Edit</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <th scope="row">Seretide</th>
+                    <th>30mg</th>
+                    <th><a href="edit.html" class="btn btn-primary">Edit <span class="entypo-pencil"></span></th>
+                </tr>
+                <tr>
+                    <th scope="row">Sirdupla</th>
+                    <th>25mg</th>
+                    <th><a href="edit.html" class="btn btn-primary">Edit <span class="entypo-pencil"></span></th>
+                </tr>
+            </tbody>
+        </table>
     </div>
     <!-- Navbar -->
     <nav class="navbar fixed-bottom navbar-expand-sm navbar-dark bg-dark">
         <div class="centre">
             <button class="navbar-toggler" type="button" onclick="$('#navbar-toggler-label-open').toggleClass('d-none');$('#navbar-toggler-label-close').toggleClass('d-none');" data-toggle="collapse" data-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
                 <div id="navbar-toggler-label-open">
-        			<span class="entypo-up-open"></span>&nbsp;Open Menu<span class="entypo-up-open"></span>
-        		</div>
-        		<div id="navbar-toggler-label-close" class="d-none">
-        			<span class="entypo-down-open"></span>&nbsp;Close Menu<span class="entypo-down-open"></span>
-        		</div>
+			<span class="entypo-up-open"></span>&nbsp;Open Menu<span class="entypo-up-open"></span>
+		</div>
+		<div id="navbar-toggler-label-close" class="d-none">
+			<span class="entypo-down-open"></span>&nbsp;Close Menu<span class="entypo-down-open"></span>
+		</div>
             </button>
         </div>
         <div class="collapse navbar-collapse" id="navbarCollapse">

@@ -22,23 +22,57 @@ var storage = window.localStorage;
     }
 })(window);
 
+
 function onDeviceReady() {
 
     $('.app').find('.sync-button').click(function () {
-        console.log('Should be syncing now!');
+        $('.app').find('.sync-button').append('<img class="sync-indicator" src="../img/ajax-loader.gif" />');
         $.ajax({
-            url: 'http://www.andrewedwards.co.uk/asthma/rest/medications',
+            //url: 'http://www.andrewedwards.co.uk/asthma/rest/web/medications',
+            url: 'http://192.168.0.6:8080/web/medications',
             dataType: "json",
             method: "GET",
             success: function (data, textStatus, jqXHR) {
-                console.log(JSON.stringify(data));
-                $('.app').find('.sync-button').append('<span class="entypo-thumbs-up"></span>');
+                var online_medications = data;
+                console.log(online_medications);
+                if ( !medications ) {
+                    loadMedications();
+                }
+                // Records are differentiated using the "created_at" value
+                // for each local medication
+                for (var local_id = 0, len_local = medications.length; local_id < len_local; local_id++) {
+                    if ( medications[local_id].db_id < 0 ) {
+                        // Medication has not yet been saved to the online DB, so needs creating
+                        ajaxPostMedication(medications[local_id], local_id);
+                    } else {
+                        // Medication has been saved to the online DB, so needs merging
+                        for (var online_id = 0, len_online = online_medications.length; online_id < len_online; online_id++) {
+                            if ( medications[local_id].db_id == online_medications[online_id].id ) {
+                                if ( medications[local_id].updated_at <= new Date(online_medications[online_id].updated_at).getTime() ) {
+                                    // Online takes precendence, save online version
+                                    var online_medication = online_medications[online_id];
+                                    online_medication['db_id'] = online_medication['id'];
+                                    delete online_medication['id'];
+                                    delete online_medication['user_id'];
+                                    online_medication['created_at'] = new Date(online_medications[online_id].updated_at).getTime();
+                                    online_medication['updated_at'] = new Date(online_medications[online_id].updated_at).getTime();
+
+                                    saveMedication(online_medication, local_id);
+                                } else {
+                                    // Local takes precendence
+                                    ajaxPatchMedication(medications[local_id], online_medications[online_id].id);
+                                }
+                            }
+                        }
+                    }
+                }
             },
             error: function (jqXHR, textStatus, errorThrown) {
                 $('.app').find('.sync-button').append('<span class="entypo-thumbs-down"></span>');
-                $('.app').find('.sync-button').after('<p>' + errorThrown + '</p>');
+                $('.app').find('.sync-button').after('<p class="sync-error">' + errorThrown + ':http:\/\/www.andrewedwards.co.uk/asthma/rest/web/medications</p>');
             }
         });
+        $('.sync-indicator').remove();
     });
 
     if ( $('.app').find('.sync-with-cloud').length ) {
@@ -46,15 +80,16 @@ function onDeviceReady() {
     }
 
     if ( $('.app').find('.medication-tables').length ) {
-        loadMedications();
         renderMedicationList( $('.medication-tables').first().data('mode') );
     }
 
-    if ( $('.app').find('.load-medication-get-id').length ) {
+    if ( $('.app').find('.load-medication-form-attributes').length ) {
         var id = new URLSearchParams(location.search).get('id');
-        loadMedications();
+        if ( !medications ) {
+            loadMedications();
+        }
         var medication = medications[id];
-        $('.load-medication-get-id').first().attr('id', id);
+        $('.load-medication-form-attributes').first().attr('id', id);
 
         $('.loaded-medication-name').html(medication.name);
         $('#inputName').val(medication.name);
@@ -73,25 +108,121 @@ function onDeviceReady() {
     }
 
     $('.save-medication-button').click(function() {
-        var form = $(this).parents('form');
-        var medication = {
-            'name': form.find('#inputName').first().val(),
-            'amount': form.find('#inputAmount').first().val(),
-            'unit': form.find('#inputUnit').first().val(),
-            'type': form.find('#inputType').find(':checked').val(),
-        }
+        if ( !$(this).attr('disabled') ) {
+            var form = $(this).parents('form');
+            var medication = {
+                'name': form.find('#inputName').first().val(),
+                'amount': form.find('#inputAmount').first().val(),
+                'unit': form.find('#inputUnit').first().val(),
+                'type': form.find('#inputType').find(':checked').val(),
+            }
 
-        if ( medication.type != 'reliever' ) {
-            medication.reminders = [];
-            for (var i = 0, reminders = form.find('#inputReminderFrequency').find(':checked').val(); i < reminders; i++) {
-                medication.reminders.push( form.find('#inputReminderAt' + (i + 1)).val() );
+            if ( medication.type != 'reliever' ) {
+                medication.reminders = [];
+                for (var i = 0, reminders = form.find('#inputReminderFrequency').find(':checked').val(); i < reminders; i++) {
+                    medication.reminders.push( form.find('#inputReminderAt' + (i + 1)).val() );
+                }
+            }
+
+            var success = false;
+            if ( form.attr('id') ) {
+                if ( saveMedication( medication, form.attr('id') ) ) {
+                    window.plugins.toast.showLongCenter('Saved ' + medication.name);
+                    success = true;
+                } else {
+                    window.plugins.toast.showLongCenter('Saving ' + medication.name + ' Failed');
+                }
+            } else {
+                if ( saveMedication( medication ) ) {
+                    window.plugins.toast.showLongCenter('Added ' + medication.name);
+                    success = true;
+                } else {
+                    window.plugins.toast.showLongCenter('Adding ' + medications.name + ' Failed');
+                }
+            }
+
+            if ( success ) {
+                // Expects the user to be at 'medication/*', if they aren't then this will break
+                // Disable save button
+                $(this).attr("disabled", true);
+                $(this).addClass("disabled");
+                // Adda delay to make the transistion less jarring
+                window.setTimeout(function() {
+                    window.location.href="index.html"
+                }, 2000);
             }
         }
+    });
 
-        if ( form.attr('id') ) {
-            saveMedication( medication, form.attr('id') );
-        } else {
-            saveMedication( medication );
+    if ( $('.app').find('.load-medication-dose-form').length ) {
+        var medication_id = new URLSearchParams(location.search).get('medication-id');
+        if ( !medications ) {
+            loadMedications();
+        }
+        $('.load-medication-form-attributes').first().attr('id', medication_id);
+
+        var medication = medications[medication_id];
+        $('.medication-name').html(medication.name);
+        $('.medication-dose-size').html("" + medication.amount + medication.unit);
+    }
+
+    $('.save-dose-button').click(function() {
+        if ( !$(this).attr('disabled') ) {
+            var form = $(this).parents('form');
+            var dose = {
+                'medication_id': form.attr('id'),
+                'dose_size': form.find('#inputAmount').first().val(),
+                'taken_at': Date.now(),
+            }
+
+            if ( saveDose(dose) ) {
+                window.plugins.toast.showLongCenter('Saved ' + medication.name);
+                $(this).addClass("disabled");
+                $(this).attr("disabled", true);
+                // Add a delay to make the transistion less jarring
+                window.setTimeout(function() {
+                    window.location.href="index.html"
+                }, 2000);
+            } else {
+                window.plugins.toast.showLongCenter('Saving ' + medication.name + ' Failed');
+            }
+        }
+    });
+}
+
+function ajaxPatchMedication(medication, id) {
+    $.ajax({
+        //url: 'http://www.andrewedwards.co.uk/asthma/rest/web/medications?id=' + id,
+        url: 'http://192.168.0.6:8080/web/medications?id=' + id,
+        dataType: "json",
+        data: medication, // This adds everything to "Andy", for now
+        method: "PATCH",
+        success: function (data, textStatus, jqXHR) {
+            medication.db_id = data.id;
+            $('.app').find('.sync-button').append(' <span class="entypo-thumbs-up"></span> Patched ' + medication.db_id);
+            saveMedication(medication, id); // Save itself to localStorage
+        },
+        error: function (jqXHR, textStatus, errorThrown) {
+            $('.app').find('.sync-button').append('<span class="entypo-thumbs-down"></span>');
+            $('.app').find('.sync-button').after('<p class="sync-error">' + errorThrown + ': http://www.andrewedwards.co.uk/asthma/rest/web/medications?id=' + id + '</p>');
+        }
+    });
+}
+
+function ajaxPostMedication(medication, id) {
+    $.ajax({
+        //url: 'http://www.andrewedwards.co.uk/asthma/rest/web/medications',
+        url: 'http://192.168.0.6:8080/web/medications',
+        dataType: "json",
+        data: $.extend({}, medication, {'user_id': 1}), // This adds everything to "Andy", for now
+        method: "POST",
+        success: function (data, textStatus, jqXHR) {
+            medication.db_id = data.id;
+            saveMedication(medication, id); // Save itself to localStorage
+        },
+        error: function (jqXHR, textStatus, errorThrown) {
+            $('.app').find('.sync-button').append('<span class="entypo-thumbs-down"></span>');
+            $('.app').find('.sync-button').after('<p class="sync-error">' + errorThrown + '</p>');
         }
     });
 }
@@ -116,51 +247,56 @@ function saveMedication(medication, id = -1) {
     medication.updated_at = Date.now();
 
     if (id >= 0) {
+        medication.db_id = medications[id].db_id;
         medications[id] = medication;
     } else {
+        medication.db_id = -1;
         medication.created_at = Date.now();
         medications.push( medication );
     }
-    storage.setItem( 'medications', JSON.stringify(medications) );
+    try {
+        storage.setItem( 'medications', JSON.stringify(medications) );
+    }
+    catch(error) {
+        console.error(error);
+        return false;
+    }
+    return true;
 }
+/*
+ * Load Medications from localStorage
+ */
 function loadMedications() {
-    console.log('Loading medications...');
     medications = JSON.parse( storage.getItem('medications') );
     if ( !medications ) {
-        console.log('...');
         medications = [];
         storage.setItem( 'medications', JSON.stringify([]) );
-        /*
-        saveMedication({
-            'name': 'Sirdupla',
-            'amount': 30,
-            'unit': 'mg',
-            'type': 'preventer',
-            'reminders': ["09:00", "21:00"],
-    	    'updated_at': Date.now(),
-    	    'created_at': Date.now(),
-        });
-        */
     }
-    console.log('Success!');
 }
 
 /*
 Save/load doses to/from localStorage, using the 'doses' variable in the form:
     [{
-        medication_id,
+        medication_id, // NOT the db-id, the actual index in the localStorage array
         datetime
     }]
 */
 // This needs improving, so that the param is checked for validity
 function saveDose(dose) {
     if ( !doses ) {
-        loadDose();
+        loadDoses();
     }
     doses.push( dose );
-    storage.setItem( 'doses', JSON.stringify(doses) );
+    try {
+        storage.setItem( 'doses', JSON.stringify(doses) );
+    }
+    catch(error) {
+        console.error(error);
+        return false;
+    }
+    return true;
 }
-function loadDose() {
+function loadDoses() {
     console.log('Loading doses...');
     doses = JSON.parse( storage.getItem('doses') );
     if ( !doses ) {
@@ -182,48 +318,80 @@ function renderMedicationList(mode = 'editMedication') {
     if ( !valid_modes.includes( mode ) ) {
         console.log('Invalid mode for renderMedicationList: ' + mode);
     }
-    $('.medication-tables').append(
-        '<h2 class="reliever-medication-heading d-none">Reliever Medication</h2>',
-        '<table class="table btn-table medication-table reliever-medication-table d-none"></table>',
-        '<h2 class="preventer-medication-heading d-none">Preventer Medication</h2>',
-        '<table class="table btn-table medication-table preventer-medication-table d-none"></table>',
-        '<h2 class="other-medication-heading d-none">Other Medication</h2>' ,
-        '<table class="table btn-table medication-table other-medication-table d-none"></table>',
-    );
-    $('.medication-table').append(
-        '<thead>' +
-            '<tr>' +
-                '<th scope="col">Name</th>' +
-                '<th scope="col">Dose Size</th>' +
-                '<th scope="col">' + (mode == 'editMedication' ? 'Edit' : 'Add Dose') + '</th>' +
-            '</tr>' +
-        '</thead>',
-        '<tbody></tbody>'
-    );
-    for (var i = 0, len = medications.length; i < len; i++) {
-        // Show the heading and this medication's table
-        $('.' + medications[i].type + '-medication-heading').removeClass('d-none');
-        $('.' + medications[i].type + '-medication-table').removeClass('d-none');
-
-        // Add row to relevant table
-        $( '.' + medications[i].type + '-medication-table tbody').append(
-            '<tr>' +
-                '<th scope="row">' + medications[i].name + '</th>' +
-                '<th scope="row">' + medications[i].amount + medications[i].unit + '</th>' + (
-                    mode == 'editMedication' ?
-                        '<th><a href="edit.html?id=' + i + '" class="btn btn-primary">Edit <span class="entypo-pencil"></span></th>' :
-                        '<th><a href="#" class="btn btn-primary add-dose-button" data-medication-id="' + i + '"><span class="entypo-plus"></span></a></th>'
-                ) +
-            '</tr>'
-        );
+    if( !medications ) {
+        loadMedications();
     }
-    // Bind function to add dose buttons
-    $('.add-dose-button').click(function() {
-        saveDose({
-            'medication_id': $(this).data('medication-id'),
-            'taken_at': Date.now(),
+    if ( medications.length == 0 ) {
+        $('.medication-tables').append(
+            '<p>You don&rsquo;t have any medications set up, would you like to add one' + (mode == 'editMedication' ? ' (above)' : '') + ' or retrieve (sync) them from the website?</p>' +
+            (mode == 'addDose' ? '<a href="../medication/add.html" class="btn btn-primary">Add Medication <span class="entypo-plus"></span></a><br /><br />' : '') +
+            '<a href="../dashboard.html" class="btn btn-primary">Sync from Dashboard</a>'
+        );
+    } else {
+        $('.medication-tables').append(
+            '<h2 class="reliever-medication-heading d-none">Reliever Medication</h2>',
+            '<table class="table btn-table medication-table reliever-medication-table d-none"></table>',
+            '<h2 class="preventer-medication-heading d-none">Preventer Medication</h2>',
+            '<table class="table btn-table medication-table preventer-medication-table d-none"></table>',
+            '<h2 class="other-medication-heading d-none">Other Medication</h2>' ,
+            '<table class="table btn-table medication-table other-medication-table d-none"></table>',
+        );
+        $('.medication-table').append(
+            '<thead>' +
+                '<tr>' +
+                    '<th scope="col">Name</th>' +
+                    '<th scope="col">Dose Size</th>' +
+                    '<th scope="col">' + (mode == 'editMedication' ? 'Edit' : 'Add Dose') + '</th>' +
+                    (mode == 'addDose' ? '<th scope="col">Custom Dose</th>' : '') +
+                '</tr>' +
+            '</thead>',
+            '<tbody></tbody>'
+        );
+
+
+        for (var i = 0, len = medications.length; i < len; i++) {
+            // Show the heading and this medication's table
+            $('.' + medications[i].type + '-medication-heading').removeClass('d-none');
+            $('.' + medications[i].type + '-medication-table').removeClass('d-none');
+
+            // Add row to relevant table
+            $( '.' + medications[i].type + '-medication-table tbody').append(
+                '<tr>' +
+                    '<th scope="row">' + medications[i].name + '</th>' +
+                    '<th scope="row">' + medications[i].amount + medications[i].unit + '</th>' + (
+                        mode == 'editMedication' ?
+                            '<th><a href="edit.html?id=' + i + '" class="btn btn-primary">Edit <span class="entypo-pencil"></span></th>' :
+                            '<th><a href="#" class="btn btn-primary add-dose-button" data-medication-id="' + i + '"><span class="entypo-plus"></span></a></th>' +
+                            '<th><a href="add.html?medication-id=' + i + '" class="btn btn-primary"><span class="entypo-newspaper"></span></th>'
+                    ) +
+                '</tr>'
+            );
+        }
+        // Bind function to add dose buttons
+        $('.add-dose-button').click(function() {
+            if ( !$(this).attr('disabled') ) {
+                if ( saveDose({
+                    'medication_id': $(this).data('medication-id'),
+                    'dose_size': 1,
+                    'taken_at': Date.now(),
+                }) ) {
+                    window.plugins.toast.showLongCenter('Added Dose of ' + medications[$(this).data('medication-id')].name);
+                } else {
+                    window.plugins.toast.showLongCenter('Adding Dose of ' + medications[$(this).data('medication-id')].name + ' Failed');
+                };
+
+                // Disable save button for a second
+                $(this).attr("disabled", true);
+                $(this).addClass("disabled");
+                // Add a delay to make the transistion less jarring
+                var that = $(this);
+                window.setTimeout(function() {
+                    that.attr("disabled", false);
+                    that.removeClass("disabled");
+                }, 1000);
+            }
         });
-    });
+    }
 }
 
 function capitalise(s) {
