@@ -22,10 +22,6 @@ $config = [
         'cache' => [
             'class' => 'yii\caching\FileCache',
         ],
-        'user' => [
-            'identityClass' => 'app\models\User',
-            'enableAutoLogin' => true,
-        ],
         'errorHandler' => [
             'errorAction' => 'site/error',
         ],
@@ -48,11 +44,11 @@ $config = [
         'db' => $db,
         'urlManager' => [
             'enablePrettyUrl' => true,
-            'enableStrictParsing' => false,
+            'enableStrictParsing' => true,
             'showScriptName' => false,
             'rules' => [
                 ['class' => 'yii\rest\UrlRule', 'controller' => 'dose'],
-                ['class' => 'yii\rest\UrlRule', 'controller' => 'medication'],
+                ['class' => 'yii\rest\UrlRule', 'controller' => 'medication', 'pluralize' => false],
                 ['class' => 'yii\rest\UrlRule', 'controller' => 'user'],
             ],
         ],
