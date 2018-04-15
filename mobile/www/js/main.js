@@ -122,6 +122,7 @@ function onDeviceReady() {
                 'medication_id': form.attr('id'),
                 'dose_size': form.find('#inputAmount').first().val(),
                 'taken_at': Date.now(),
+                'new': true,
             }
 
             if ( saveDose(dose) ) {
@@ -164,7 +165,9 @@ function saveMedication(medication, id = -1, update_updated_at = true) {
         medication.db_id = medications[id].db_id;
         medications[id] = medication;
     } else {
-        medication.db_id = -1;
+        if ( typeof medication.db_id === 'undefined' ) {
+            medication.db_id = -1;
+        }
         medication.created_at = Date.now();
         medications.push( medication );
     }
@@ -196,11 +199,18 @@ Save/load doses to/from localStorage, using the 'doses' variable in the form:
     }]
 */
 // This needs improving, so that the param is checked for validity
-function saveDose(dose) {
+function saveDose(dose, id = -1) {
     if ( !doses ) {
         loadDoses();
     }
-    doses.push( dose );
+
+    if ( id >= 0 ) {
+        doses[id] = dose;
+    } else {
+        dose.new = true;
+        doses.push( dose );
+    }
+
     try {
         storage.setItem( 'doses', JSON.stringify(doses) );
     }

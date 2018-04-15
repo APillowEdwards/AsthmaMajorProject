@@ -49,9 +49,11 @@ class Dose extends \yii\db\ActiveRecord
             return false;
         }
 
+        /* Commenting this out until login works
         if ( $this->medication->user->id != Yii::$app->user->id && !Yii::$app->user->identity->isAdmin ) {
             return false;
         }
+        */
         return true;
     }
 
