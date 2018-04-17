@@ -1,13 +1,15 @@
 (function(){
-  var base_url = 'http://localhost/Asthma/rest/web/'
-
   $('.app').find('.sync-button').click(function () {
       $('.app').find('.sync-button').append('<img class="sync-indicator" src="../../img/ajax-loader.gif" />');
       $.ajax({
           url: base_url + 'medication',
           dataType: "json",
           method: "GET",
+          headers: {
+              "Authorization": "Basic " + localStorage.getItem( "credentials" )
+          },
           success: function (data, textStatus, jqXHR) {
+              console.log("Success!");
               var meds_by_dbid = [];
               var new_meds = []
               var online_meds_by_id = [];
@@ -85,6 +87,9 @@
                       $.ajax({
                           url: base_url + 'doses',
                           dataType: "json",
+                          headers: {
+                              "Authorization": "Basic " + localStorage.getItem( "credentials" )
+                          },
                           data: {
                               medication_id: medications[ this_dose.medication_id ].db_id,
                               dose_size: this_dose.dose_size,
@@ -105,6 +110,8 @@
               }
           },
           error: function (jqXHR, textStatus, errorThrown) {
+              console.log("Failed!");
+              console.log(errorThrown + ": " + textStatus);
           }
       });
 
@@ -119,6 +126,9 @@
           dataType: "json",
           data: $.extend({}, medication, {'user_id': 1}), // This adds everything to "Andy", for now
           method: "POST",
+          headers: {
+              "Authorization": "Basic " + localStorage.getItem( "credentials" )
+          },
           success: function (data, textStatus, jqXHR) {
               medication.db_id = data.id;
               delete medication['local_id'];
@@ -138,6 +148,9 @@
           dataType: "json",
           data: medication, // This adds everything to "Andy", for now
           method: "PATCH",
+          headers: {
+              "Authorization": "Basic " + localStorage.getItem( "credentials" )
+          },
           success: function (data, textStatus, jqXHR) {
               medication.db_id = data.id;
               saveMedication(medication, id); // Save itself to localStorage

@@ -1,6 +1,7 @@
 Header set Allow "GET,POST,PATCH,PUT,HEAD,OPTIONS"
 Header set Access-Control-Allow-Methods "GET,POST,PATCH,PUT,HEAD,OPTIONS"
 Header set Access-Control-Allow-Origin "*"
+Header set Access-Control-Allow-Headers Authorization
 
 Options +FollowSymLinks
 IndexIgnore */*

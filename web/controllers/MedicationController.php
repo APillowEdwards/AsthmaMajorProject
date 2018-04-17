@@ -23,9 +23,7 @@ class MedicationController extends Controller
     public function behaviors()
     {
         return [
-	    [
-		'class' => TimestampBehavior::className(),
-	    ],
+    	    'timestamp' => TimestampBehavior::className(),
             'access' => [
                 'class' => AccessControl::className(),
                 'only' => ['index', 'create', 'view', 'update', 'delete'],

@@ -42,6 +42,10 @@ $config = [
             ],
         ],
         'db' => $db,
+        'user' => [
+            'enableSession' => false,
+            'loginUrl' => null,
+        ],
         'urlManager' => [
             'enablePrettyUrl' => true,
             'enableStrictParsing' => true,
@@ -55,7 +59,7 @@ $config = [
     ],
     'modules' => [
         'user' => [
-            'class' => 'dektrium\user\Module'
+            'class' => 'dektrium\user\Module',
         ],
     ],
     'params' => $params,

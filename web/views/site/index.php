@@ -11,8 +11,8 @@ $this->title = 'Asthma';
  	   <?php if (Yii::$app->user->isGuest) : ?>
        <p class="lead">Login or register below:</p>
        <p>
-         <a class="btn btn-lg btn-success" href="/asthma/web/web/user/login">Login</a>
-         <a class="btn btn-lg btn-success" href="/asthma/web/web/user/register">Register</a>
+         <a class="btn btn-lg btn-success" href="/Asthma/web/web/user/login">Login</a>
+         <a class="btn btn-lg btn-success" href="/Asthma/web/web/user/register">Register</a>
       </p>
       <?php endif ?>
     </div>

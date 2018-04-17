@@ -34,7 +34,7 @@
 </head>
 
 <body class="text-center no-nav">
-    <div class="app">
+    <div class="app redirect-if-logged-in">
         <div class="vertical-centre">
         	<form class="form-signin centre">
                 <h1>AsthmaTracker</h1>
@@ -43,61 +43,18 @@
         		<input type="text" id="inputUsername" class="form-control" placeholder="Username" required autofocus>
         		<label for="inputPassword" class="sr-only">Password</label>
         		<input type="password" id="inputPassword" class="form-control" placeholder="Password" required>
-        		<div class="checkbox mb-3">
+        		<!--
+                <div class="checkbox mb-3">
         			<label>
         				<input type="checkbox" value="remember-me"> Remember me
         			</label>
         		</div>
-        		<a href="dashboard.html" class="btn btn-lg btn-primary btn-block">Sign in</a>
-        		<!--
-        		Commented out while ignoring login
-        		<button class="btn btn-lg btn-primary btn-block" type="submit">Sign in</button>
-        		-->
+                -->
+        		<a href="#" class="btn btn-lg btn-primary btn-block login-button">Log in</a>
         		<p class="mt-5 mb-3 text-muted">&copy; 2017-2018</p>
         	</form>
         </div>
     </div>
-    <!-- Navbar -->
-    <!--
-    <nav class="navbar fixed-bottom navbar-expand-sm navbar-dark bg-dark">
-        <div class="centre">
-            <button class="navbar-toggler" type="button" onclick="$('#navbar-toggler-label-open').toggleClass('d-none');$('#navbar-toggler-label-close').toggleClass('d-none');" data-toggle="collapse" data-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
-                <div id="navbar-toggler-label-open">
-			<span class="entypo-up-open"></span>&nbsp;Open Menu<span class="entypo-up-open"></span>
-		</div>
-		<div id="navbar-toggler-label-close" class="d-none">
-			<span class="entypo-down-open"></span>&nbsp;Close Menu<span class="entypo-down-open"></span>
-		</div>
-            </button>
-        </div>
-        <div class="collapse navbar-collapse" id="navbarCollapse">
-            <ul class="navbar-nav mr-auto">
-                <li class="nav-item active">
-                    <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="#">Link</a>
-                </li>
-                <!--
-                <li class="nav-item">
-                    <a class="nav-link disabled" href="#">Disabled</a>
-                </li>
-                -->
-                <!--
-                <li class="nav-item dropup">
-                    <a class="nav-link dropdown-toggle" href="https://getbootstrap.com" id="dropdown10" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Dropup</a>
-                    <div class="dropdown-menu" aria-labelledby="dropdown10">
-                        <a class="dropdown-item" href="#">Action</a>
-                        <a class="dropdown-item" href="#">Another action</a>
-                        <a class="dropdown-item" href="#">Something else here</a>
-                    </div>
-                </li>
-                -->
-		<!--
-            </ul>
-        </div>
-    </nav>
-    -->
     <script type="text/javascript" src="cordova.js"></script>
     <script type="text/javascript" src="js/libs/jquery.min.js"></script>
     <script type="text/javascript" src="js/libs/bootstrap.min.js"></script>

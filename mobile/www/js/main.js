@@ -1,5 +1,3 @@
-document.addEventListener('deviceready', onDeviceReady, false);
-
 /* Global variables to make records available to views */
 var medications;
 var doses;
@@ -7,6 +5,8 @@ var doses;
 var dbShell;
 
 var storage = window.localStorage;
+
+var base_url = 'http://localhost/Asthma/rest/web/';
 
 /* Fix to remove proxy in Ajax calls, by 'mesompi' on StackOverflow */
 (function() {
@@ -22,8 +22,38 @@ var storage = window.localStorage;
     }
 })(window);
 
+document.addEventListener('deviceready', onDeviceReady, false);
 
 function onDeviceReady() {
+
+    if ( $('.app').hasClass('redirect-if-logged-in') ) {
+        if ( localStorage.getItem("credentials") ) {
+            $(location).attr('href', "dashboard.html");
+        }
+    }
+
+    $('.app').find('.login-button').click( function() {
+        var username = $('#inputUsername').val();
+        var password = $('#inputPassword').val();
+        var credentials = btoa(username + ":" + password);
+        $.ajax({
+            url: base_url + 'medication',
+            dataType: "json",
+            method: "GET",
+            headers: {
+                "Authorization": "Basic " + credentials
+            },
+            success: function (data, textStatus, jqXHR) {
+                localStorage.setItem("credentials", credentials);
+                $(location).attr('href', "dashboard.html");
+            }
+        });
+    });
+
+    $('nav').find('.log-out-button').click( function() {
+        console.log("Removed credentials");
+        localStorage.setItem("credentials", "");
+    });
 
     if ( $('.app').find('.sync-button').length ) {
       $.getScript('js/mylibs/sync.js');
