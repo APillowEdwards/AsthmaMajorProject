@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='utf-8'?>
-<widget id="com.adwards.asthma" version="1.0.0" xmlns="http://www.w3.org/ns/widgets" xmlns:gap="http://phonegap.com/ns/1.0">
+<widget id="com.adwards.asthma" version="0.0.3" xmlns="http://www.w3.org/ns/widgets" xmlns:gap="http://phonegap.com/ns/1.0">
     <name>Asthma</name>
     <description>
         Asthma tracker application for Major Project
@@ -102,6 +102,9 @@
 
 
     <access origin="*" />
+    <allow-intent href="*" />
+    <allow-navigation href="*" />
+
     <allow-intent href="http://*/*" />
     <allow-intent href="https://*/*" />
     <allow-intent href="tel:*" />
@@ -116,4 +119,5 @@
         <allow-intent href="itms-apps:*" />
     </platform>
     <gap:plugin name="cordova-plugin-x-toast" source="npm" />
+    <gap:plugin name="cordova-plugin-whitelist" source="npm" />
 </widget>

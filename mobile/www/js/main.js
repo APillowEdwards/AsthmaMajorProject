@@ -6,7 +6,7 @@ var dbShell;
 
 var storage = window.localStorage;
 
-var base_url = 'http://localhost/Asthma/rest/web/';
+var base_url = 'http://192.168.0.17/Asthma/rest/web/';
 
 /* Fix to remove proxy in Ajax calls, by 'mesompi' on StackOverflow */
 (function() {
@@ -46,6 +46,10 @@ function onDeviceReady() {
             success: function (data, textStatus, jqXHR) {
                 localStorage.setItem("credentials", credentials);
                 $(location).attr('href', "dashboard.html");
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                $('.app').find('.login-button').append('<span class="entypo-thumbs-down"></span>');
+                $('.app').find('.login-button').after('<p class="sync-error">' + errorThrown + ':' + textStatus + ':' + base_url + 'medication' + '</p>');
             }
         });
     });
