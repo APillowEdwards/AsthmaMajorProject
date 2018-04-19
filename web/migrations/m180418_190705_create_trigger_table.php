@@ -3,32 +3,32 @@
 use yii\db\Migration;
 
 /**
- * Handles the creation of table `auth_token`.
+ * Handles the creation of table `trigger`.
  */
-class m180415_123535_create_auth_token_table extends Migration
+class m180418_190705_create_trigger_table extends Migration
 {
     /**
      * {@inheritdoc}
      */
     public function safeUp()
     {
-        $this->createTable('auth_token', [
+        $this->createTable('trigger', [
             'id' => $this->primaryKey(),
-            'token' => $this->string()->notNull(),
             'user_id' => $this->integer()->notNull(),
+            'name' => $this->string()->notNull(),
         ]);
 
         // creates index for column `user_id`
         $this->createIndex(
-            'idx-auth_token-user_id',
-            'auth_token',
+            'idx-trigger-user_id',
+            'trigger',
             'user_id'
         );
 
         // add foreign key for table `user`
         $this->addForeignKey(
-            'fk-auth_token-user_id',
-            'auth_token',
+            'fk-trigger-user_id',
+            'trigger',
             'user_id',
             'user',
             'id',
@@ -43,16 +43,16 @@ class m180415_123535_create_auth_token_table extends Migration
     {
         // drops foreign key for table `user`
         $this->dropForeignKey(
-            'fk-auth_token-user_id',
-            'auth_token'
+            'fk-trigger-user_id',
+            'trigger'
         );
 
         // drops index for column `user_id`
         $this->dropIndex(
-            'idx-auth_token-user_id',
-            'auth_token'
+            'idx-trigger-user_id',
+            'trigger'
         );
 
-        $this->dropTable('auth_token');
+        $this->dropTable('trigger');
     }
 }

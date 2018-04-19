@@ -4,13 +4,13 @@ use yii\helpers\Html;
 use yii\widgets\DetailView;
 
 /* @var $this yii\web\View */
-/* @var $model app\models\Medication */
+/* @var $model app\models\Trigger */
 
 $this->title = $model->name;
-$this->params['breadcrumbs'][] = ['label' => 'Medications', 'url' => ['index']];
+$this->params['breadcrumbs'][] = ['label' => 'Triggers', 'url' => ['index']];
 $this->params['breadcrumbs'][] = $this->title;
 ?>
-<div class="medication-view">
+<div class="trigger-view">
 
     <h1><?= Html::encode($this->title) ?></h1>
 
@@ -29,12 +29,7 @@ $this->params['breadcrumbs'][] = $this->title;
         'model' => $model,
         'attributes' => [
             'id',
-            'user_id',
             'name',
-            'type',
-            'quantity',
-            'amount',
-            'unit',
         ],
     ]) ?>
 

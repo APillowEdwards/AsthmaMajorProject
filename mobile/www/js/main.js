@@ -76,6 +76,8 @@ function onDeviceReady() {
 
         $('.loaded-medication-name').html(medication.name);
         $('#inputName').val(medication.name);
+        $('.loaded-medication-quantity').html(medication.quantity);
+        $('#inputQuantity').val(medication.quantity);
         $('.loaded-medication-amount').html(medication.amount);
         $('#inputAmount').val(medication.amount);
         $('.loaded-medication-unit').html(medication.unit);
@@ -95,6 +97,7 @@ function onDeviceReady() {
             var form = $(this).parents('form');
             var medication = {
                 'name': form.find('#inputName').first().val(),
+                'quantity': form.find('#inputQuantity').first().val(),
                 'amount': form.find('#inputAmount').first().val(),
                 'unit': form.find('#inputUnit').first().val(),
                 'type': form.find('#inputType').find(':checked').val(),
@@ -146,7 +149,7 @@ function onDeviceReady() {
 
         var medication = medications[medication_id];
         $('.medication-name').html(medication.name);
-        $('.medication-dose-size').html("" + medication.amount + medication.unit);
+        $('.medication-dose-size').html(medication.quantity + "x " + medication.amount + medication.unit);
     }
 
     $('.save-dose-button').click(function() {
@@ -178,6 +181,7 @@ function onDeviceReady() {
 Save/load medications to/from localStorage, using the 'medication' variable in the form:
     [{
         name,
+        quantity,
         amount,
         unit,
         type,
@@ -316,7 +320,7 @@ function renderMedicationList(mode = 'editMedication') {
             $( '.' + medications[i].type + '-medication-table tbody').append(
                 '<tr>' +
                     '<th scope="row">' + medications[i].name + '</th>' +
-                    '<th scope="row">' + medications[i].amount + medications[i].unit + '</th>' + (
+                    '<th scope="row">' + medications[i].quantity + "x " + medications[i].amount + medications[i].unit + '</th>' + (
                         mode == 'editMedication' ?
                             '<th><a href="edit.html?id=' + i + '" class="btn btn-primary">Edit <span class="entypo-pencil"></span></th>' :
                             '<th><a href="#" class="btn btn-primary add-dose-button" data-medication-id="' + i + '"><span class="entypo-plus"></span></a></th>' +

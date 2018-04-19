@@ -20,7 +20,8 @@ class m180219_135507_create_medication_table extends Migration
             'user_id' => $this->integer()->notNull(),
             'name' => $this->string()->notNull(),
             'type' => $this->string()->notNull(),
-            'amount' => $this->decimal()->notNull(),
+            'quantity' => $this->integer()->notNull(), // For example, 2 tablets
+            'amount' => $this->decimal()->notNull(), // For example '25'mg per tablet
             'unit' => $this->string()->notNull(),
 	    'updated_at' => 'TIMESTAMP ON UPDATE CURRENT_TIMESTAMP DEFAULT CURRENT_TIMESTAMP',
 	    'created_at' => 'TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP',
@@ -28,7 +29,7 @@ class m180219_135507_create_medication_table extends Migration
 
         // creates index for column `user_id`
         $this->createIndex(
-            'idx-medication-user_id',	
+            'idx-medication-user_id',
             'medication',
             'user_id'
         );

@@ -19,6 +19,7 @@ AppAsset::register($this);
     <meta charset="<?= Yii::$app->charset ?>">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script type="text/javascript" src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
     <?= Html::csrfMetaTags() ?>
     <title><?= Html::encode($this->title) ?></title>
     <?php $this->head() ?>
@@ -52,6 +53,16 @@ AppAsset::register($this);
                 'label' => 'Doses',
                 'url' => ['/dose/index'],
                 'visible' => (!Yii::$app->user->isGuest && Yii::$app->user->identity->isAdmin),
+            ],
+            [
+                'label' => 'Triggers',
+                'url' => ['/trigger/index'],
+                'visible' => (!Yii::$app->user->isGuest),
+            ],
+            [
+                'label' => 'Exacerbations',
+                'url' => ['/exacerbation/index'],
+                'visible' => (!Yii::$app->user->isGuest),
             ],
             [
                 'label' => 'Your Profile',

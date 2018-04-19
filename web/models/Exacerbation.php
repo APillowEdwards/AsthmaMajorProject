@@ -7,30 +7,24 @@ use dektrium\user\models\User;
 use Yii;
 
 /**
- * This is the model class for table "medication".
+ * This is the model class for table "exacerbation".
  *
  * @property int $id
  * @property int $user_id
- * @property string $name
- * @property string $type
- * @property integer $quantity // For example, 2 tablets
- * @property double $amount // For example '25'mg per tablet
- * @property string $unit
- *
- * @property User $user
+ * @property string $happened_at
  */
-class Medication extends \yii\db\ActiveRecord
+class Exacerbation extends \yii\db\ActiveRecord
 {
     /**
      * @inheritdoc
      */
     public static function tableName()
     {
-        return 'medication';
+        return 'exacerbation';
     }
 
     /**
-    * Ensure that the current user either owns the medication or is an
+    * Ensure that the current user either owns the exacerbation or is an
     * administrator before deletion.
     */
     public function beforeDelete()
@@ -39,16 +33,14 @@ class Medication extends \yii\db\ActiveRecord
             return false;
         }
 
-        /* Commenting this out until login works
         if ( $this->user->id != Yii::$app->user->id && !Yii::$app->user->identity->isAdmin ) {
             return false;
         }
-        */
         return true;
     }
 
     /**
-    * Ensure that the current user either owns the medication or is an
+    * Ensure that the current user either owns the exacerbation or is an
     * administrator before saving.
     */
     public function beforeSave($insert)
@@ -57,11 +49,13 @@ class Medication extends \yii\db\ActiveRecord
             return false;
         }
 
-        /* Commenting this out until login works
+        if ( !$this->happened_at ) {
+            $this->happened_at = new \yii\db\Expression('NOW()');
+        }
+
         if ( $this->user->id != Yii::$app->user->id && !Yii::$app->user->identity->isAdmin ) {
             return false;
         }
-        */
         return true;
     }
 
@@ -71,11 +65,8 @@ class Medication extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['user_id', 'name', 'type', 'quantity', 'amount', 'unit'], 'required'],
             [['user_id'], 'integer'],
-            [['name', 'type', 'unit'], 'string', 'max' => 255],
-            [['amount'], 'number'],
-            [['user_id'], 'exist', 'skipOnError' => true, 'targetClass' => User::className(), 'targetAttribute' => ['user_id' => 'id']],
+            [['happened_at'], 'safe'],
         ];
     }
 
@@ -86,12 +77,8 @@ class Medication extends \yii\db\ActiveRecord
     {
         return [
             'id' => 'ID',
-            'user_id' => 'User',
-            'name' => 'Name',
-            'type' => 'Type',
-            'quantity' => 'Quantity (e.g. number of puffs or tablets)',
-            'amount' => 'Amount',
-            'unit' => 'Unit (e.g. mg)',
+            'user_id' => 'User ID',
+            'happened_at' => 'Happened At',
         ];
     }
 
@@ -101,10 +88,5 @@ class Medication extends \yii\db\ActiveRecord
     public function getUser()
     {
         return $this->hasOne(User::className(), ['id' => 'user_id']);
-    }
-
-    public static function formatMedicationsForDropDown($medications)
-    {
-        return ArrayHelper::map( $medications, 'id', 'name', 'type' );
     }
 }

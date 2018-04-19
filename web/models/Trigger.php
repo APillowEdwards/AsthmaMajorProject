@@ -2,31 +2,23 @@
 
 namespace app\models;
 
-use yii\helpers\ArrayHelper;
 use dektrium\user\models\User;
 use Yii;
 
 /**
- * This is the model class for table "medication".
+ * This is the model class for table "trigger".
  *
  * @property int $id
- * @property int $user_id
  * @property string $name
- * @property string $type
- * @property integer $quantity // For example, 2 tablets
- * @property double $amount // For example '25'mg per tablet
- * @property string $unit
- *
- * @property User $user
  */
-class Medication extends \yii\db\ActiveRecord
+class Trigger extends \yii\db\ActiveRecord
 {
     /**
      * @inheritdoc
      */
     public static function tableName()
     {
-        return 'medication';
+        return 'trigger';
     }
 
     /**
@@ -67,11 +59,8 @@ class Medication extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['user_id', 'name', 'type', 'quantity', 'amount', 'unit'], 'required'],
-            [['user_id'], 'integer'],
-            [['name', 'type', 'unit'], 'string', 'max' => 255],
-            [['amount'], 'number'],
-            [['user_id'], 'exist', 'skipOnError' => true, 'targetClass' => User::className(), 'targetAttribute' => ['user_id' => 'id']],
+            [['name'], 'required'],
+            [['name'], 'string', 'max' => 255],
         ];
     }
 
@@ -82,28 +71,10 @@ class Medication extends \yii\db\ActiveRecord
     {
         return [
             'id' => 'ID',
-            'user_id' => 'User',
             'name' => 'Name',
-            'type' => 'Type',
-            'quantity' => 'Quantity (e.g. number of puffs or tablets)',
-            'amount' => 'Amount',
-            'unit' => 'Unit (e.g. mg)',
         ];
     }
 
-    public static function formatMedicationsForDropDown($medications)
-    {
-        return ArrayHelper::map( $medications, 'id', 'name', 'type' );
-    }
-
-    public static function formatTypesForDropDown()
-    {
-        return [
-            'reliever' => 'Reliever',
-            'preventer' => 'Preventer',
-            'other' => 'Other',
-        ];
-    }
 
     /**
      * @return \yii\db\ActiveQuery
