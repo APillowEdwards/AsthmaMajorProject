@@ -4,6 +4,8 @@ namespace app\controllers;
 
 use Yii;
 use app\models\Exacerbation;
+use app\models\ExacerbationTrigger;
+use app\models\Symptom;
 use app\models\Trigger;
 use dektrium\user\models\User;
 use yii\data\ActiveDataProvider;
@@ -95,9 +97,8 @@ class ExacerbationController extends Controller
     {
         $model = new Exacerbation;
         $errors = [];
-
         if ( $model->load(Yii::$app->request->post()) ) {
-            if ( Yii::$app->request->isPost && Yii::$app->request->post('username') ) {
+            if ( Yii::$app->request->isPost ) {
                 if ( Yii::$app->user->identity->isAdmin ) {
                     $username = Yii::$app->request->post('username');
                     if ( $user = User::find()->where(['username' => $username])->one() ) {
@@ -119,31 +120,44 @@ class ExacerbationController extends Controller
             }
             if ( $model->save() ) {
                 // Handle symptoms
-                if ( $symptoms = Yii::$app->request->post('symptoms') ) {
+                if ( $symptoms = Yii::$app->request->post('symptom') ) {
                     foreach ($symptoms as $symptom) {
                         $s_model = new Symptom;
-                        if ( !($s_model->load($symptom) && $s_model->save()) ) {
+                        $s_model->exacerbation_id = $model->id;
+                        $s_model->name = $symptom['name'];
+                        $s_model->severity = $symptom['severity'];
+
+                        if ( !($s_model->save()) ) {
                             // Handle error
                         }
                     }
                 }
                 // Handle triggers
-                if ( $triggers = Yii::$app->request->post('triggers') ) {
-                    echo "<pre>"; print_r(Yii::$app->request->post()); echo "</pre>";
+                if ( $triggers = Yii::$app->request->post('trigger') ) {
                     foreach ($triggers as $trigger) {
-                        $t_model = new Trigger;
-                        if ( !($t_model->load($trigger) && $t_model->save()) ) {
-                            echo "<pre>"; print_r($model->getErrors()); echo "</pre>";
+                        $trigger_id;
+                        if ( !Trigger::find()->where(['user_id' => $model->user_id, 'name' => $trigger['name']])->exists() ) {
+                            $t_model = new Trigger;
+                            $t_model->name = $trigger['name'];
+                            $t_model->user_id = $model->user->id;
+                            if ( $t_model->save() ) {
+                                $trigger_id = $t_model->id;
+                            } else {
+                                // Handle Error
+                            }
                         } else {
+                            $trigger_id = Trigger::find()->where(['user_id' => $model->user_id, 'name' => $trigger['name']])->one()->id;
+                        }
+                        if ( isset( $trigger_id ) ) {
                             // Create link record
                             $et_model = new ExacerbationTrigger;
                             $et_model->exacerbation_id = $model->id;
-                            $et_model->trigger_id = $t_model->id;
+                            $et_model->trigger_id = $trigger_id;
                             $et_model->save();
                         }
                     }
                 }
-                //return $this->redirect(['view', 'id' => $model->id]);
+                return $this->redirect(['view', 'id' => $model->id]);
             }
         }
 
@@ -164,9 +178,8 @@ class ExacerbationController extends Controller
     {
         $model = $this->findModel($id);
         $errors = [];
-
         if ( $model->load(Yii::$app->request->post()) ) {
-            if ( Yii::$app->request->isPost && Yii::$app->request->post('username') ) {
+            if ( Yii::$app->request->isPost ) {
                 if ( Yii::$app->user->identity->isAdmin ) {
                     $username = Yii::$app->request->post('username');
                     if ( $user = User::find()->where(['username' => $username])->one() ) {
@@ -177,7 +190,7 @@ class ExacerbationController extends Controller
                         } else {
                             $errors['username'] = "'" . $username . "' is not a valid username.";
                         }
-                        return $this->render('update', [
+                        return $this->render('create', [
                             'errors' => $errors,
                             'model' => $model,
                         ]);
@@ -187,6 +200,50 @@ class ExacerbationController extends Controller
                 }
             }
             if ( $model->save() ) {
+                // Handle symptoms
+                if ( $symptoms = Yii::$app->request->post('symptom') ) {
+                    foreach ($symptoms as $symptom) {
+                        $s_model;
+                        if ( Symptom::find()->where(['exacerbation_id' => $model->id, 'name' => $symptom])->exists() ) {
+                            $s_model = Symptom::find()->where(['exacerbation_id' => $model->id, 'name' => $symptom])->one();
+                            $s_model->severity = $symptom['severity'];
+                        } else {
+                            $s_model = new Symptom;
+                            $s_model->exacerbation_id = $model->id;
+                            $s_model->name = $symptom['name'];
+                            $s_model->severity = $symptom['severity'];
+
+                        }
+                        if ( !($s_model->save()) ) {
+                            // Handle error
+                        }
+                    }
+                }
+                // Handle triggers
+                if ( $triggers = Yii::$app->request->post('trigger') ) {
+                    foreach ($triggers as $trigger) {
+                        $trigger_id;
+                        if ( !Trigger::find()->where(['user_id' => $model->user_id, 'name' => $trigger['name']])->exists() ) {
+                            $t_model = new Trigger;
+                            $t_model->name = $trigger['name'];
+                            $t_model->user_id = $model->user->id;
+                            if ( $t_model->save() ) {
+                                $trigger_id = $t_model->id;
+                            } else {
+                                // Handle Error
+                            }
+                        } else {
+                            $trigger_id = Trigger::find()->where(['user_id' => $model->user_id, 'name' => $trigger['name']])->one()->id;
+                        }
+                        if ( isset( $trigger_id ) ) {
+                            // Create link record
+                            $et_model = new ExacerbationTrigger;
+                            $et_model->exacerbation_id = $model->id;
+                            $et_model->trigger_id = $trigger_id;
+                            $et_model->save();
+                        }
+                    }
+                }
                 return $this->redirect(['view', 'id' => $model->id]);
             }
         }

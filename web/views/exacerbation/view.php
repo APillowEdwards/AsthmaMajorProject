@@ -1,5 +1,7 @@
 <?php
 
+use yii\data\ArrayDataProvider;
+use yii\grid\GridView;
 use yii\helpers\Html;
 use yii\widgets\DetailView;
 
@@ -31,6 +33,33 @@ $this->params['breadcrumbs'][] = $this->title;
             'id',
             'user_id',
             'happened_at',
+            [
+                'label' => 'Triggers',
+                'value' => call_user_func(function ($exacerbation) {
+                    $string = "";
+                    foreach( $exacerbation->triggers as $trigger) {
+                        $string .= $trigger->name . ", ";
+                    }
+                    // Remove last comma
+                    $string = substr($string, 0, -2);
+                    return $string;
+                }, $model),
+            ],
+            [
+                'label' => 'Symptoms',
+                'format' => 'raw',
+                'value' => GridView::widget([
+                    'dataProvider' => new ArrayDataProvider([
+                        'allModels' => $model->symptoms,
+                        'pagination' => false,
+                    ]),
+                    'columns' => [
+                        'name',
+                        'severity'
+                    ],
+                    'layout' => '{items}',
+                ]),
+            ],
         ],
     ]) ?>
 
