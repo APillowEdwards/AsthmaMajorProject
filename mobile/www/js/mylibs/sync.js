@@ -85,7 +85,44 @@
                       formatted_date += (date.getMinutes() < 10 ? "0" : "") + date.getMinutes() + ":";
                       formatted_date += (date.getSeconds() < 10 ? "0" : "") + date.getSeconds();
                       $.ajax({
-                          url: base_url + 'doses',
+                          url: base_url + 'dose',
+                          dataType: "json",
+                          headers: {
+                              "Authorization": "Basic " + localStorage.getItem( "credentials" )
+                          },
+                          data: {
+                              medication_id: medications[ this_dose.medication_id ].db_id,
+                              dose_size: this_dose.dose_size,
+                              // d/m/Y H:i:s
+                              taken_at: formatted_date,
+                          },
+                          method: "POST",
+                          success: function (data, textStatus, jqXHR) {
+                              this_dose.new = false;
+                              saveDose(this_dose, this_dose_index);
+                          },
+                          error: function (jqXHR, textStatus, errorThrown) {
+                              $('.app').find('.sync-button').append('<span class="entypo-thumbs-down"></span>');
+                              $('.app').find('.sync-button').after('<p class="sync-error">' + errorThrown + '</p>');
+                          }
+                      });
+                  }
+              }
+
+              for (var i = 0, len = doses.length; i < len; i++) {
+                  let this_dose = doses[i];
+                  let this_dose_index = i;
+                  if ( this_dose.new ) {
+                      var date = new Date(this_dose.taken_at);
+
+                      var formatted_date = (date.getDate() < 10 ? "0" : "") + date.getDate() + "/";
+                      formatted_date += (date.getMonth() + 1 < 10 ? "0" : "") + (date.getMonth() + 1) + "/";
+                      formatted_date += date.getFullYear() + " ";
+                      formatted_date += (date.getHours() < 10 ? "0" : "") + date.getHours() + ":";
+                      formatted_date += (date.getMinutes() < 10 ? "0" : "") + date.getMinutes() + ":";
+                      formatted_date += (date.getSeconds() < 10 ? "0" : "") + date.getSeconds();
+                      $.ajax({
+                          url: base_url + 'dose',
                           dataType: "json",
                           headers: {
                               "Authorization": "Basic " + localStorage.getItem( "credentials" )
@@ -115,6 +152,167 @@
           }
       });
 
+      $.ajax({
+          url: base_url + 'trigger',
+          dataType: "json",
+          method: "GET",
+          headers: {
+              "Authorization": "Basic " + localStorage.getItem( "credentials" )
+          },
+          success: function (data, textStatus, jqXHR) {
+              loadTriggers();
+              for (var i = 0, len = data.length; i < len; i++) {
+                  if ( !triggers.includes( data[i].name ) ) {
+                      triggers.push( data[i].name );
+                  }
+              }
+
+              var online_trigger_names = [];
+              for (var i = 0, len = data.length; i < len; i++) {
+                  online_trigger_names.push( data[i].name );
+              }
+              for (var i = 0, len = triggers.length; i < len; i++) {
+                  if ( !online_trigger_names.includes( triggers[i] ) ) {
+                      $.ajax({
+                          url: base_url + 'trigger',
+                          dataType: "json",
+                          data: {'name': triggers[i]},
+                          method: "POST",
+                          headers: {
+                              "Authorization": "Basic " + localStorage.getItem( "credentials" )
+                          },
+                          success: function (data, textStatus, jqXHR) {},
+                          error: function (jqXHR, textStatus, errorThrown) {
+                              $('.app').find('.sync-button').append('<span class="entypo-thumbs-down"></span>');
+                              $('.app').find('.sync-button').after('<p class="sync-error">' + errorThrown + '</p>');
+                          }
+                      });
+                  }
+              }
+          },
+          error: function (jqXHR, textStatus, errorThrown) {
+              console.log("Failed!");
+              console.log(errorThrown + ": " + textStatus);
+          }
+      });
+
+      loadExacerbations();
+
+      for (var i = 0, len = exacerbations.length; i < len; i++) {
+          let this_exacerbation = exacerbations[i];
+          let this_exacerbation_index = i;
+          if ( this_exacerbation.new ) {
+              var date = new Date(this_exacerbation.happened_at);
+
+              var formatted_date = (date.getDate() < 10 ? "0" : "") + date.getDate() + "/";
+              formatted_date += (date.getMonth() + 1 < 10 ? "0" : "") + (date.getMonth() + 1) + "/";
+              formatted_date += date.getFullYear() + " ";
+              formatted_date += (date.getHours() < 10 ? "0" : "") + date.getHours() + ":";
+              formatted_date += (date.getMinutes() < 10 ? "0" : "") + date.getMinutes() + ":";
+              formatted_date += (date.getSeconds() < 10 ? "0" : "") + date.getSeconds();
+
+              $.ajax({
+                  url: base_url + 'exacerbation',
+                  dataType: "json",
+                  headers: {
+                      "Authorization": "Basic " + localStorage.getItem( "credentials" )
+                  },
+                  data: {
+                      happened_at: formatted_date,
+                  },
+                  method: "POST",
+                  success: function (data, textStatus, jqXHR) {
+                      var new_exacerbation = data;
+                      // push triggers
+                      $.ajax({
+                          url: base_url + 'trigger',
+                          dataType: "json",
+                          method: "GET",
+                          headers: {
+                              "Authorization": "Basic " + localStorage.getItem( "credentials" )
+                          },
+                          success: function (data, textStatus, jqXHR) {
+                              var new_exacerbation_id = new_exacerbation.id;
+
+                              var trigger_ids = [];
+                              console.log(this_exacerbation);
+                              console.log(data);
+                              for (var j = 0, jlen = this_exacerbation.triggers.length; j < jlen; j++) {
+                                  for (var k = 0, klen = data.length; k < klen; k++) {
+                                      if ( this_exacerbation.triggers[j] == data[k].name ) {
+                                          trigger_ids.push( data[k].id );
+                                      }
+                                  }
+                              }
+
+                              for (var j = 0, jlen = trigger_ids.length; j < jlen; j++) {
+                                  $.ajax({
+                                      url: base_url + 'exacerbation-trigger',
+                                      dataType: "json",
+                                      data: {'exacerbation_id': new_exacerbation_id, 'trigger_id': trigger_ids[j]},
+                                      method: "POST",
+                                      headers: {
+                                          "Authorization": "Basic " + localStorage.getItem( "credentials" )
+                                      },
+                                      success: function (data, textStatus, jqXHR) {},
+                                      error: function (jqXHR, textStatus, errorThrown) {
+                                          $('.app').find('.sync-button').append('<span class="entypo-thumbs-down"></span>');
+                                          $('.app').find('.sync-button').after('<p class="sync-error">' + errorThrown + '</p>');
+                                      }
+                                  });
+                              }
+                          },
+                          error: function (jqXHR, textStatus, errorThrown) {
+                              $('.app').find('.sync-button').append('<span class="entypo-thumbs-down"></span>');
+                              $('.app').find('.sync-button').after('<p class="sync-error">' + errorThrown + '</p>');
+                          }
+                      });
+
+                      // push symptoms
+                      $.ajax({
+                          url: base_url + 'symptom',
+                          dataType: "json",
+                          method: "GET",
+                          headers: {
+                              "Authorization": "Basic " + localStorage.getItem( "credentials" )
+                          },
+                          success: function (data, textStatus, jqXHR) {
+                              var new_exacerbation_id = new_exacerbation.id;
+
+                              for (var j = 0, jlen = this_exacerbation.symptoms.length; j < jlen; j++) {
+                                  $.ajax({
+                                      url: base_url + 'symptom',
+                                      dataType: "json",
+                                      data: {'exacerbation_id': new_exacerbation_id, 'name': this_exacerbation.symptoms[j].name, 'severity': this_exacerbation.symptoms[j].severity},
+                                      method: "POST",
+                                      headers: {
+                                          "Authorization": "Basic " + localStorage.getItem( "credentials" )
+                                      },
+                                      success: function (data, textStatus, jqXHR) {},
+                                      error: function (jqXHR, textStatus, errorThrown) {
+                                          $('.app').find('.sync-button').append('<span class="entypo-thumbs-down"></span>');
+                                          $('.app').find('.sync-button').after('<p class="sync-error">' + errorThrown + '</p>');
+                                      }
+                                  });
+                              }
+                          },
+                          error: function (jqXHR, textStatus, errorThrown) {
+                              $('.app').find('.sync-button').append('<span class="entypo-thumbs-down"></span>');
+                              $('.app').find('.sync-button').after('<p class="sync-error">' + errorThrown + '</p>');
+                          }
+                      });
+
+                      exacerbations[this_exacerbation_index].new = false;
+                      storage.setItem( 'exacerbations', JSON.stringify(exacerbations) );
+                  },
+                  error: function (jqXHR, textStatus, errorThrown) {
+                      $('.app').find('.sync-button').append('<span class="entypo-thumbs-down"></span>');
+                      $('.app').find('.sync-button').after('<p class="sync-error">' + errorThrown + '</p>');
+                  }
+              });
+
+          }
+      }
 
       $('.sync-indicator').remove();
   });
@@ -124,7 +322,7 @@
       $.ajax({
           url: base_url + 'medication',
           dataType: "json",
-          data: $.extend({}, medication, {'user_id': 1}), // This adds everything to "Andy", for now
+          data: $.extend({}, medication), // This adds everything to "Andy", for now
           method: "POST",
           headers: {
               "Authorization": "Basic " + localStorage.getItem( "credentials" )

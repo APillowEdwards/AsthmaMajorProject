@@ -24,39 +24,23 @@ class Exacerbation extends \yii\db\ActiveRecord
         return 'exacerbation';
     }
 
-    /**
-    * Ensure that the current user either owns the exacerbation or is an
-    * administrator before deletion.
-    */
     public function beforeDelete()
     {
         if (!parent::beforeDelete()) {
             return false;
         }
 
-        if ( $this->user->id != Yii::$app->user->id && !Yii::$app->user->identity->isAdmin ) {
-            return false;
-        }
         return true;
     }
 
-    /**
-    * Ensure that the current user either owns the exacerbation or is an
-    * administrator before saving.
-    */
     public function beforeSave($insert)
     {
         if (!parent::beforeSave($insert)) {
             return false;
         }
 
-        if ( !$this->happened_at ) {
-            $this->happened_at = date('Y-m-d H:i:s');
-        }
+        $this->user_id = Yii::$app->user->identity->id;
 
-        if ( $this->user->id != Yii::$app->user->id && !Yii::$app->user->identity->isAdmin ) {
-            return false;
-        }
         return true;
     }
 

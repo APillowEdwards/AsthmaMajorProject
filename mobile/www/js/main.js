@@ -1,7 +1,8 @@
 /* Global variables to make records available to views */
 var medications;
 var doses;
-
+var exacerbations;
+var triggers; //just names, no link to exacerbations
 var dbShell;
 
 var storage = window.localStorage;
@@ -62,8 +63,33 @@ function onDeviceReady() {
     if ( $('.app').find('.sync-button').length ) {
       $.getScript('js/mylibs/sync.js');
     }
+
     if ( $('.app').find('.medication-tables').length ) {
         renderMedicationList( $('.medication-tables').first().data('mode') );
+    }
+
+    if ( $('.app').find('.exacerbation-table').length ) {
+        renderExacerbationList();
+    }
+
+    if ( $('.app').find('#inputTriggers').length ) {
+        if ( !triggers ) {
+            loadTriggers();
+        }
+        for (var i = 0, len = triggers.length; i < len; i++){
+            $('.app').find('#inputTriggers').append(
+                '<label class="btn btn-primary">' +
+                    '<input type="checkbox" name="type" autocomplete="off" value="' + triggers[i] + '">' + triggers[i] +
+                '</label>' +
+                '<br />'
+            );
+        }
+        $('.app').find('#inputTriggers').append(
+            '<a class="btn btn-primary active add-trigger-button" href="#">Add New Trigger</a>'
+        );
+        $('.add-trigger-button').click(function () {
+            $('<label class="btn btn-primary active" style="color:#333"><input type="text" autocomplete="off"><span class="btn btn-primary" onclick="$(this).parent().remove()"> X </span></label>').insertBefore('.add-trigger-button');
+        });
     }
 
     if ( $('.app').find('.load-medication-form-attributes').length ) {
@@ -140,6 +166,75 @@ function onDeviceReady() {
         }
     });
 
+    $('.save-exacerbation-button').click(function() {
+        if ( !$(this).attr('disabled') ) {
+            var form = $(this).parents('form');
+
+            var form_triggers = [];
+            var form_symptoms = [];
+
+            form.find('#inputTriggers input').each( function (index) {
+                if ( $(this).is(':checkbox') && $(this).is(':checked') ) {
+                    form_triggers.push( $(this).val() );
+                }
+                if ( $(this).is(':text') ) {
+                    form_triggers.push( $(this).val() );
+                }
+            } );
+
+            form.find('#inputSymptoms input:checkbox').each( function (index) {
+                if ( $(this).is(':checked') ) {
+                    if ( index + 1 < 5) {
+                        form_symptoms.push( {
+                            name: $(this).val(),
+                            severity: form.find('#inputSymptoms #inputSymptomSeverity' + (index + 1) + ' :checked').val(),
+                        } );
+                    } else {
+                        form_symptoms.push( {
+                            name: $(this).val(),
+                            severity: 1,
+                        } );
+                    }
+                }
+            } );
+
+            var exacerbation = {
+                'happened_at': Date.now(),
+                'symptoms': form_symptoms,
+                'triggers': form_triggers,
+            }
+
+            var success = false;
+            if ( form.attr('id') ) {
+                if ( saveExacerbation( exacerbation, form.attr('id') ) ) {
+                    window.plugins.toast.showLongCenter('Saved Exacerbation');
+                    success = true;
+                } else {
+                    window.plugins.toast.showLongCenter('Saving Exacerbation Failed');
+                }
+            } else {
+                exacerbation.new = true;
+                if ( saveExacerbation( exacerbation ) ) {
+                    window.plugins.toast.showLongCenter('Added Exacerbation');
+                    success = true;
+                } else {
+                    window.plugins.toast.showLongCenter('Adding Exacerbation Failed');
+                }
+            }
+
+            if ( success ) {
+                console.log( exacerbation );
+                // Disable save button
+                $(this).attr("disabled", true);
+                $(this).addClass("disabled");
+                // Add a delay to make the transistion less jarring
+                window.setTimeout(function() {
+                    window.location.href="index.html"
+                }, 2000);
+            }
+        }
+    });
+
     if ( $('.app').find('.load-medication-dose-form').length ) {
         var medication_id = new URLSearchParams(location.search).get('medication-id');
         if ( !medications ) {
@@ -189,24 +284,27 @@ Save/load medications to/from localStorage, using the 'medication' variable in t
     }]
 */
 // This needs improving, so that the param is checked for validity
-function saveMedication(medication, id = -1, update_updated_at = true) {
+function saveMedication(medication, id = -1, update_timestamps = true) {
     console.log(id);
     if ( !medications ) {
         loadMedications();
     }
 
-    if ( update_updated_at ) {
+    if ( update_timestamps ) {
         medication.updated_at = Date.now();
     }
 
     if (id >= 0) {
-        medication.db_id = medications[id].db_id;
+        // Not sure why I had this, commented out because of problems with setting db_id on new medications
+        //medication.db_id = medications[id].db_id;
         medications[id] = medication;
     } else {
         if ( typeof medication.db_id === 'undefined' ) {
             medication.db_id = -1;
         }
-        medication.created_at = Date.now();
+        if ( update_timestamps ) {
+            medication.created_at = Date.now();
+        }
         medications.push( medication );
     }
     try {
@@ -268,6 +366,76 @@ function loadDoses() {
         storage.setItem( 'doses', JSON.stringify(doses) );
     }
     console.log('Success!');
+}
+
+/*
+Save/load exacerbations to/from localStorage, using the 'exacerbations' variable in the form:
+    [{
+        happened_at,
+        symptoms: [name, severity],
+        triggers: [name],
+    }]
+*/
+// This needs improving, so that the param is checked for validity
+function saveExacerbation(exacerbation) {
+    if ( !exacerbations ) {
+        loadExacerbations();
+    }
+    exacerbations.push( exacerbation );
+    try {
+        storage.setItem( 'exacerbations', JSON.stringify(exacerbations) );
+        if ( !triggers ) {
+            loadTriggers();
+        }
+        for (var trigger in exacerbation.triggers) {
+            if ( !triggers.includes(exacerbation.triggers[trigger]) ) {
+                saveTrigger(exacerbation.triggers[trigger]);
+            }
+        }
+    }
+    catch(error) {
+        console.error(error);
+        return false;
+    }
+    return true;
+}
+function loadExacerbations() {
+    exacerbations = JSON.parse( storage.getItem('exacerbations') );
+    if ( !exacerbations ) {
+        exacerbations = [];
+        // Store the array
+        storage.setItem( 'exacerbations', JSON.stringify(exacerbations) );
+    }
+}
+
+/*
+Save/load triggers to/from localStorage, using the 'triggers' variable in the form:
+    [
+        name
+    ]
+*/
+// This needs improving, so that the param is checked for validity
+function saveTrigger(trigger) {
+    if ( !triggers ) {
+        loadTriggers();
+    }
+    triggers.push( trigger );
+    try {
+        storage.setItem( 'triggers', JSON.stringify(triggers) );
+    }
+    catch(error) {
+        console.error(error);
+        return false;
+    }
+    return true;
+}
+function loadTriggers() {
+    triggers = JSON.parse( storage.getItem('triggers') );
+    if ( !triggers ) {
+        triggers = [];
+        // Store the array
+        storage.setItem( 'triggers', JSON.stringify(triggers) );
+    }
 }
 
 /*
@@ -353,6 +521,55 @@ function renderMedicationList(mode = 'editMedication') {
                 }, 1000);
             }
         });
+    }
+}
+
+function renderExacerbationList() {
+    if( !exacerbations ) {
+        loadExacerbations();
+    }
+    if ( exacerbations.length == 0 ) {
+        $('.exacerbation-table').append(
+            '<p>You don&rsquo;t have any exacerbations set up, would you like to add one or retrieve (sync) them from the website?</p>' +
+            '<a href="../exacerbations/add.html" class="btn btn-primary">Add Exacerbation <span class="entypo-plus"></span></a><br /><br />' +
+            '<a href="../dashboard.html" class="btn btn-primary">Sync from Dashboard</a>'
+        );
+    } else {
+        $('.exacerbation-table').append(
+            '<table class="table btn-table">' +
+                '<thead>' +
+                    '<tr>' +
+                        '<th scope="col">ID</th>' +
+                        '<th scope="col">Triggers</th>' +
+                        '<th scope="col">Symptoms</th>' +
+                    '</tr>' +
+                '</thead>' +
+                '<tbody></tbody>' +
+            '</table>'
+        );
+
+        $('.exacerbation-table').removeClass('d-none');
+
+        for (var i = 0, len = exacerbations.length; i < len; i++) {
+            var triggers_str = "";
+            for (var j = 0, jlen = exacerbations[i].triggers.length; j < jlen; j++) {
+                triggers_str += exacerbations[i].triggers[j] + ", ";
+            }
+
+            var symptoms_str = "";
+            for (var j = 0, jlen = exacerbations[i].symptoms.length; j < jlen; j++) {
+                symptoms_str += exacerbations[i].symptoms[j].name + " (" + exacerbations[i].symptoms[j].severity + "), ";
+            }
+
+            // Add row to table
+            $('.exacerbation-table tbody').append(
+                '<tr>' +
+                    '<td scope="row">' + i + '</td>' +
+                    '<td scope="row">' + triggers_str + '</td>' +
+                    '<td scope="row">' + symptoms_str + '</td>' +
+                '</tr>'
+            );
+        }
     }
 }
 

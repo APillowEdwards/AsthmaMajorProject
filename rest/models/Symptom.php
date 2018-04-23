@@ -59,4 +59,12 @@ class Symptom extends \yii\db\ActiveRecord
             'Preventing Usual Activities' => false,
         ];
     }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getExacerbation()
+    {
+        return $this->hasOne(Exacerbation::className(), ['id' => 'exacerbation_id']);
+    }
 }

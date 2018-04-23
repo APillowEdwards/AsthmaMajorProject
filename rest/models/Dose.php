@@ -25,37 +25,18 @@ class Dose extends \yii\db\ActiveRecord
         return 'dose';
     }
 
-    /**
-    * Ensure that the current user either owns the associated medication or is
-    * an administrator before deletion.
-    */
     public function beforeDelete() {
         if (!parent::beforeDelete()) {
             return false;
         }
 
-        if ( $this->medication->user->id != Yii::$app->user->id && !Yii::$app->user->identity->isAdmin ) {
-            return false;
-        }
         return true;
     }
 
-    /**
-    * Ensure that the current user either owns the associated medication or is
-    * an administrator before saving.
-    */
     public function beforeSave($insert) {
         if (!parent::beforeSave($insert)) {
             return false;
         }
-
-        /* Commenting this out until login works
-        if ( $this->medication->user->id != Yii::$app->user->id && !Yii::$app->user->identity->isAdmin ) {
-            return false;
-        }
-        */
-        return true;
-    }
 
     /**
      * @inheritdoc

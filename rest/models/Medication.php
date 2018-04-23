@@ -29,39 +29,21 @@ class Medication extends \yii\db\ActiveRecord
         return 'medication';
     }
 
-    /**
-    * Ensure that the current user either owns the medication or is an
-    * administrator before deletion.
-    */
     public function beforeDelete()
     {
         if (!parent::beforeDelete()) {
             return false;
         }
 
-        /* Commenting this out until login works
-        if ( $this->user->id != Yii::$app->user->id && !Yii::$app->user->identity->isAdmin ) {
-            return false;
-        }
-        */
         return true;
     }
 
-    /**
-    * Ensure that the current user either owns the medication or is an
-    * administrator before saving.
-    */
     public function beforeSave($insert)
     {
         if (!parent::beforeSave($insert)) {
             return false;
         }
 
-        /* Commenting this out until login works
-        if ( $this->user->id != Yii::$app->user->id && !Yii::$app->user->identity->isAdmin ) {
-            return false;
-        }
-        */
         return true;
     }
 

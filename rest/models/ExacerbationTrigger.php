@@ -45,4 +45,20 @@ class ExacerbationTrigger extends \yii\db\ActiveRecord
             'trigger_id' => 'Trigger ID',
         ];
     }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getExacerbation()
+    {
+        return $this->hasOne(Exacerbation::className(), ['id' => 'exacerbation_id']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getTrigger()
+    {
+        return $this->hasOne(Trigger::className(), ['id' => 'trigger_id']);
+    }
 }
