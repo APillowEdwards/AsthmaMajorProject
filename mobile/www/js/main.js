@@ -235,6 +235,28 @@ function onDeviceReady() {
         }
     });
 
+    $('.delete-exacerbation-button').click(function() {
+        if ( !$(this).attr('disabled') ) {
+            var success = false;
+
+            if ( exacerbations[ $(this).data('id') ].new ) {
+                exacerbations.splice( $(this).data('id'), 1 );
+                storage.setItem( 'exacerbations', JSON.stringify(exacerbations) );
+                window.plugins.toast.showLongCenter('Exacerbation successfully deleted.');
+
+                // Disable save button
+                $(this).attr("disabled", true);
+                $(this).addClass("disabled");
+                // Add a delay to make the transistion less jarring
+                window.setTimeout(function() {
+                    window.location.href="index.html"
+                }, 2000);
+            } else {
+                window.plugins.toast.showLongCenter('Cannot delete synced exacerbations!');
+            }
+        }
+    });
+
     if ( $('.app').find('.load-medication-dose-form').length ) {
         var medication_id = new URLSearchParams(location.search).get('medication-id');
         if ( !medications ) {
@@ -542,6 +564,7 @@ function renderExacerbationList() {
                         '<th scope="col">ID</th>' +
                         '<th scope="col">Triggers</th>' +
                         '<th scope="col">Symptoms</th>' +
+                        '<th scope="col">Delete</th>' +
                     '</tr>' +
                 '</thead>' +
                 '<tbody></tbody>' +
@@ -567,6 +590,7 @@ function renderExacerbationList() {
                     '<td scope="row">' + i + '</td>' +
                     '<td scope="row">' + triggers_str + '</td>' +
                     '<td scope="row">' + symptoms_str + '</td>' +
+                    '<td scope="row">' + ( exacerbations[i].new ? '<a href="#" class="btn btn-primary delete-exacerbation-button" data-id="' + i + '"><span class="entypo-trash"></span></a>' : ' ') + '</td>' +
                 '</tr>'
             );
         }

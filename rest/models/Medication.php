@@ -44,6 +44,8 @@ class Medication extends \yii\db\ActiveRecord
             return false;
         }
 
+        $this->user_id = Yii::$app->user->identity->id;
+
         return true;
     }
 
@@ -53,8 +55,7 @@ class Medication extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['user_id', 'name', 'type', 'quantity', 'amount', 'unit'], 'required'],
-            [['user_id'], 'integer'],
+            [['name', 'type', 'quantity', 'amount', 'unit'], 'required'],
             [['name', 'type', 'unit'], 'string', 'max' => 255],
             [['amount'], 'number'],
             [['user_id'], 'exist', 'skipOnError' => true, 'targetClass' => User::className(), 'targetAttribute' => ['user_id' => 'id']],
@@ -83,6 +84,14 @@ class Medication extends \yii\db\ActiveRecord
     public function getUser()
     {
         return $this->hasOne(User::className(), ['id' => 'user_id']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getDoses()
+    {
+        return $this->hasMany(Dose::className(), ['medication_id' => 'id']);
     }
 
     public static function formatMedicationsForDropDown($medications)

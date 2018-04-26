@@ -9,7 +9,6 @@
               "Authorization": "Basic " + localStorage.getItem( "credentials" )
           },
           success: function (data, textStatus, jqXHR) {
-              console.log("Success!");
               var meds_by_dbid = [];
               var new_meds = []
               var online_meds_by_id = [];
@@ -69,6 +68,8 @@
               for (var i = 0, len = new_meds.length; i < len; i++) {
                   ajaxPostMedication( new_meds[i], new_meds[i].local_id );
               }
+              window.plugins.toast.showLongBottom('Medications synched!');
+
               // Push new Doses
               loadDoses();
 
@@ -109,6 +110,8 @@
                   }
               }
 
+              var dose_success = true;
+
               for (var i = 0, len = doses.length; i < len; i++) {
                   let this_dose = doses[i];
                   let this_dose_index = i;
@@ -139,16 +142,19 @@
                               saveDose(this_dose, this_dose_index);
                           },
                           error: function (jqXHR, textStatus, errorThrown) {
+                              dose_success = false;
                               $('.app').find('.sync-button').append('<span class="entypo-thumbs-down"></span>');
                               $('.app').find('.sync-button').after('<p class="sync-error">' + errorThrown + '</p>');
                           }
                       });
                   }
               }
+              if ( !dose_success ) {
+                   window.plugins.toast.showShortBottom('Dose push failed.');
+              }
           },
           error: function (jqXHR, textStatus, errorThrown) {
-              console.log("Failed!");
-              console.log(errorThrown + ": " + textStatus);
+
           }
       });
 
@@ -191,8 +197,7 @@
               }
           },
           error: function (jqXHR, textStatus, errorThrown) {
-              console.log("Failed!");
-              console.log(errorThrown + ": " + textStatus);
+              window.plugins.toast.showShortBottom(errorThrown + ": " + textStatus);
           }
       });
 
@@ -313,6 +318,8 @@
 
           }
       }
+
+      window.plugins.toast.showLongBottom('Sync Completed!');
 
       $('.sync-indicator').remove();
   });

@@ -106,10 +106,19 @@ class Medication extends \yii\db\ActiveRecord
     }
 
     /**
+    * @return \yii\db\ActiveQuery
+    */
+    public function getDoses()
+    {
+        return $this->hasMany(Dose::className(), ['medication_id' => 'id'])->orderBy(['taken_at' => SORT_ASC]);
+    }
+
+    /**
      * @return \yii\db\ActiveQuery
      */
     public function getUser()
     {
         return $this->hasOne(User::className(), ['id' => 'user_id']);
     }
+
 }

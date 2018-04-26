@@ -37,6 +37,9 @@ class Dose extends \yii\db\ActiveRecord
         if (!parent::beforeSave($insert)) {
             return false;
         }
+        
+        return true;
+    }
 
     /**
      * @inheritdoc

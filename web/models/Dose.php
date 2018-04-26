@@ -34,9 +34,6 @@ class Dose extends \yii\db\ActiveRecord
             return false;
         }
 
-        if ( $this->medication->user->id != Yii::$app->user->id && !Yii::$app->user->identity->isAdmin ) {
-            return false;
-        }
         return true;
     }
 
@@ -49,9 +46,6 @@ class Dose extends \yii\db\ActiveRecord
             return false;
         }
 
-        if ( $this->medication->user->id != Yii::$app->user->id && !Yii::$app->user->identity->isAdmin ) {
-            return false;
-        }
         return true;
     }
 
