@@ -43,7 +43,7 @@ class VisualisationController extends Controller
 
         $earliest_date =
             Yii::$app->db->createCommand("
-                SELECT MIN(UNIX_TIMESTAMP(DATE_FORMAT(taken_at, '%Y-%m-%d 01:00:00'))) AS min_date
+                SELECT MIN(UNIX_TIMESTAMP(DATE_FORMAT(taken_at, '%Y-%m-%d 00:00:00'))) AS min_date
                 FROM dose
                 WHERE medication_id IN (
                     SELECT id
@@ -55,7 +55,7 @@ class VisualisationController extends Controller
 
         $latest_date =
             Yii::$app->db->createCommand("
-                SELECT MAX(UNIX_TIMESTAMP(DATE_FORMAT(taken_at, '%Y-%m-%d 01:00:00'))) AS max_date
+                SELECT MAX(UNIX_TIMESTAMP(DATE_FORMAT(taken_at, '%Y-%m-%d 00:00:00'))) AS max_date
                 FROM dose
                 WHERE medication_id IN (
                     SELECT id
@@ -68,7 +68,7 @@ class VisualisationController extends Controller
         foreach ($meds as $med) {
             $doses_per_day = Yii::$app->db->createCommand("SELECT SUM(dose_size) AS num_doses, UNIX_TIMESTAMP(DATE_FORMAT(taken_at, '%Y-%m-%d 01:00:00')) AS taken_on FROM dose WHERE medication_id = " . $med->id . " GROUP BY DATE_FORMAT(taken_at, '%Y-%m-%d 00:00:00')")->queryAll();
 
-            for ( $date = $earliest_date; $date <= $latest_date; $date += 24 * 60 * 60 * 10) {
+            for ( $date = $earliest_date; $date <= $latest_date; $date += 24 * 60 * 60) {
                 $taken_times = array_column($doses_per_day, 'taken_on');
                 if ( !in_array($date, $taken_times) ) {
                     $doses_per_day []= [
