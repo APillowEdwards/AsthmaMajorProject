@@ -83,6 +83,75 @@ class VisualisationController extends Controller
         ]);
     }
 
+    public static function format_exacerbations_by_period($period = 'day') {
+        $arr = [];
+        $earliest_date_query;
+        $latest_date_query;
+
+        switch( $period ) {
+            case 'day':
+                $date_increment = 1;
+                $earliest_date_query = "
+                    SELECT MIN(UNIX_TIMESTAMP(DATE_FORMAT(happened_at, '%Y-%m-%d 01:00:00'))) AS min_date
+                    FROM exacerbation
+                    WHERE user_id = ". Yii::$app->user->identity->id;
+                $latest_date_query = "
+                    SELECT MAX(UNIX_TIMESTAMP(DATE_FORMAT(happened_at, '%Y-%m-%d 01:00:00'))) AS max_date
+                    FROM exacerbation
+                    WHERE user_id = ". Yii::$app->user->identity->id;
+                $exacerbations_per_period_select = "SELECT COUNT(id) AS num_exacerbations, UNIX_TIMESTAMP(DATE_FORMAT(happened_at, '%Y-%m-%d 01:00:00')) AS happened_during";
+                break;
+
+            case 'week':
+                $date_increment = 7;
+                $earliest_date_query = "
+                    SELECT MIN(UNIX_TIMESTAMP(SUBDATE(DATE_FORMAT(happened_at, '%Y-%m-%d 01:00:00'), WEEKDAY(DATE_FORMAT(happened_at, '%Y-%m-%d 01:00:00'))))) AS min_date
+                    FROM exacerbation
+                    WHERE user_id = ". Yii::$app->user->identity->id;
+                $latest_date_query = "
+                    SELECT MAX(UNIX_TIMESTAMP(SUBDATE(DATE_FORMAT(happened_at, '%Y-%m-%d 01:00:00'), WEEKDAY(DATE_FORMAT(happened_at, '%Y-%m-%d 01:00:00'))))) AS max_date
+                    FROM exacerbation
+                    WHERE user_id = ". Yii::$app->user->identity->id;
+                $exacerbations_per_period_select = "SELECT COUNT(id) AS num_exacerbations, UNIX_TIMESTAMP(SUBDATE(DATE_FORMAT(happened_at, '%Y-%m-%d 01:00:00'), WEEKDAY(DATE_FORMAT(happened_at, '%Y-%m-%d 01:00:00')))) AS happened_during";
+                break;
+
+        }
+
+        $earliest_date = Yii::$app->db->createCommand($earliest_date_query)->queryOne()['min_date'];
+        $latest_date = Yii::$app->db->createCommand($latest_date_query)->queryOne()['max_date'];
+
+        $exacerbations_per_period = Yii::$app->db->createCommand($exacerbations_per_period_select . " FROM exacerbation WHERE user_id = " . Yii::$app->user->identity->id . " GROUP BY happened_during")->queryAll();
+        $happened_times = array_column($exacerbations_per_period, 'happened_during');
+
+        for ( $date = $earliest_date; $date <= $latest_date; $date += $date_increment * 24 * 60 * 60) {
+            if ( !in_array($date, $happened_times) ) {
+                $exacerbations_per_period []= [
+                    'num_exacerbations' => 0,
+                    'happened_during' => $date,
+                ];
+            }
+        }
+        usort($exacerbations_per_period, function ($item1, $item2) {
+            return $item1['happened_during'] <=> $item2['happened_during'];
+        });
+
+        $data = array_map(
+            function ($exacerbation) {
+                return [ floatval($exacerbation['happened_during']) * 1000, floatval($exacerbation['num_exacerbations']) ];
+            },
+            $exacerbations_per_period
+        );
+
+        $arr = [
+            [
+                'name' => 'Exacerbations',
+                'data' => $data,
+            ]
+        ];
+
+        return $arr;
+    }
+
     public static function format_peak_flows_by_period($period = 'day') {
         $arr = [];
         $earliest_date_query;
@@ -142,75 +211,10 @@ class VisualisationController extends Controller
             $recordings_per_period
         );
 
-        $arr = $data == [0,0] ? [] : [
-            'name' => 'Your  Peak Flow',
-            'data' => $data,
-        ];
-
-        return $arr;
-    }
-
-    public static function format_exacerbations_by_period($period = 'day') {
-        $arr = [];
-        $earliest_date_query;
-        $latest_date_query;
-
-        switch( $period ) {
-            case 'day':
-                $date_increment = 1;
-                $earliest_date_query = "
-                    SELECT MIN(UNIX_TIMESTAMP(DATE_FORMAT(happened_at, '%Y-%m-%d 01:00:00'))) AS min_date
-                    FROM exacerbation
-                    WHERE user_id = ". Yii::$app->user->identity->id;
-                $latest_date_query = "
-                    SELECT MAX(UNIX_TIMESTAMP(DATE_FORMAT(happened_at, '%Y-%m-%d 01:00:00'))) AS max_date
-                    FROM exacerbation
-                    WHERE user_id = ". Yii::$app->user->identity->id;
-                $exacerbations_per_period_select = "SELECT COUNT(id) AS num_exacerbations, UNIX_TIMESTAMP(DATE_FORMAT(happened_at, '%Y-%m-%d 01:00:00')) AS happened_during";
-                break;
-
-            case 'week':
-                $date_increment = 7;
-                $earliest_date_query = "
-                    SELECT MIN(UNIX_TIMESTAMP(SUBDATE(DATE_FORMAT(happened_at, '%Y-%m-%d 01:00:00'), WEEKDAY(DATE_FORMAT(happened_at, '%Y-%m-%d 01:00:00'))))) AS min_date
-                    FROM exacerbation
-                    WHERE user_id = ". Yii::$app->user->identity->id;
-                $latest_date_query = "
-                    SELECT MAX(UNIX_TIMESTAMP(SUBDATE(DATE_FORMAT(happened_at, '%Y-%m-%d 01:00:00'), WEEKDAY(DATE_FORMAT(happened_at, '%Y-%m-%d 01:00:00'))))) AS max_date
-                    FROM exacerbation
-                    WHERE user_id = ". Yii::$app->user->identity->id;
-                $exacerbations_per_period_select = "SELECT COUNT(id) AS num_exacerbations, UNIX_TIMESTAMP(SUBDATE(DATE_FORMAT(happened_at, '%Y-%m-%d 01:00:00'), WEEKDAY(DATE_FORMAT(happened_at, '%Y-%m-%d 01:00:00')))) AS happened_during";
-                break;
-
-        }
-
-        $earliest_date = Yii::$app->db->createCommand($earliest_date_query)->queryOne()['min_date'];
-        $latest_date = Yii::$app->db->createCommand($latest_date_query)->queryOne()['max_date'];
-
-        $exacerbations_per_period = Yii::$app->db->createCommand($exacerbations_per_period_select . " FROM exacerbation WHERE user_id = " . Yii::$app->user->identity->id . " GROUP BY happened_during")->queryAll();
-        $happened_times = array_column($exacerbations_per_period, 'happened_during');
-
-        for ( $date = $earliest_date; $date <= $latest_date; $date += $date_increment * 24 * 60 * 60) {
-            if ( !in_array($date, $happened_times) ) {
-                $exacerbations_per_period []= [
-                    'num_exacerbations' => 0,
-                    'happened_during' => $date,
-                ];
-            }
-        }
-        usort($exacerbations_per_period, function ($item1, $item2) {
-            return $item1['happened_during'] <=> $item2['happened_during'];
-        });
-
         $arr = [
             [
-                'name' => 'Exacerbations',
-                'data' => array_map(
-                    function ($exacerbation) {
-                        return [ floatval($exacerbation['happened_during']) * 1000, floatval($exacerbation['num_exacerbations']) ];
-                    },
-                    $exacerbations_per_period
-                )
+                'name' => 'Your  Peak Flow',
+                'data' => $data,
             ]
         ];
 
@@ -286,14 +290,16 @@ class VisualisationController extends Controller
                 return $item1['taken_during'] <=> $item2['taken_during'];
             });
 
+            $data = array_map(
+                function ($dpd) {
+                    return [ floatval($dpd['taken_during']) * 1000, floatval($dpd['num_doses']) ];
+                },
+                $doses_per_period
+            );
+
             $arr []= [
                 'name' => $med->name,
-                'data' => array_map(
-                    function ($dpd) {
-                        return [ floatval($dpd['taken_during']) * 1000, floatval($dpd['num_doses']) ];
-                    },
-                    $doses_per_period
-                )
+                'data' => $data,
             ];
         }
 

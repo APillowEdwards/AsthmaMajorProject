@@ -3,6 +3,7 @@
 namespace app\models;
 
 use Yii;
+use \DateTime;
 use dektrium\user\models\User;
 
 /**
@@ -29,11 +30,12 @@ class PeakFlow extends \yii\db\ActiveRecord
             return false;
         }
 
-        $this->recorded_at = date('Y-m-d H:i:s');
-
-        if ( $this->user->id != Yii::$app->user->id && !Yii::$app->user->identity->isAdmin ) {
-            return false;
+        if (!$this->recorded_at) {
+            $this->recorded_at = date('Y-m-d H:i:s');
         }
+
+        $this->user_id = Yii::$app->user->identity->id;
+
         return true;
     }
 
@@ -43,9 +45,15 @@ class PeakFlow extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['value',], 'required'],
+            [['recorded_at', 'value',], 'required'],
             [['user_id', 'value'], 'integer'],
             [['recorded_at'], 'safe'],
+            [['recorded_at'], 'filter', 'filter' => function ($value) {
+                if ( $dt = DateTime::createFromFormat('d/m/Y H:i:s', $value) ) {
+                    return $dt->format('Y-m-d H:i:s');
+                }
+                return false;
+            }],
             [['user_id'], 'exist', 'skipOnError' => true, 'targetClass' => User::className(), 'targetAttribute' => ['user_id' => 'id']],
         ];
     }

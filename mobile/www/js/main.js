@@ -3,11 +3,12 @@ var medications;
 var doses;
 var exacerbations;
 var triggers; //just names, no link to exacerbations
+var peak_flows;
 var dbShell;
 
 var storage = window.localStorage;
 
-var base_url = 'http://192.168.0.17/Asthma/rest/web/';
+var base_url = 'http://192.168.0.46/Asthma/rest/web/';
 
 /* Fix to remove proxy in Ajax calls, by 'mesompi' on StackOverflow */
 (function() {
@@ -292,6 +293,29 @@ function onDeviceReady() {
             }
         }
     });
+
+    $('.save-peak-flow-button').click(function() {
+        if ( !$(this).attr('disabled') ) {
+            var form = $(this).parents('form');
+            var peak_flow = {
+                'peak_flow': form.find('#inputValue').first().val(),
+                'recorded_at': Date.now(),
+                'new': true,
+            }
+
+            if ( savePeakFlow(peak_flow) ) {
+                window.plugins.toast.showLongCenter('Saved Peak Flow!');
+                $(this).addClass("disabled");
+                $(this).attr("disabled", true);
+                // Add a delay to make the transistion less jarring
+                window.setTimeout(function() {
+                    window.location.href="add.html"
+                }, 2000);
+            } else {
+                window.plugins.toast.showLongCenter('Saving Peak Flow Failed');
+            }
+        }
+    });
 }
 
 /*
@@ -457,6 +481,44 @@ function loadTriggers() {
         triggers = [];
         // Store the array
         storage.setItem( 'triggers', JSON.stringify(triggers) );
+    }
+}
+
+/*
+Save/load peak flow to/from localStorage, using the 'peak_flows' variable in the form:
+    [
+        value,
+        happened_at,
+        new
+    ]
+*/
+// This needs improving, so that the param is checked for validity
+function savePeakFlow(peak_flow, id = -1) {
+    if ( !peak_flows ) {
+        loadPeakFlows();
+    }
+
+    if ( id >= 0 ) {
+        peak_flows[id] = peak_flow;
+    } else {
+        peak_flows.push( peak_flow );
+    }
+
+    try {
+        storage.setItem( 'peak_flows', JSON.stringify(peak_flows) );
+    }
+    catch(error) {
+        console.error(error);
+        return false;
+    }
+    return true;
+}
+function loadPeakFlows() {
+    peak_flows = JSON.parse( storage.getItem('peak_flows') );
+    if ( !peak_flows ) {
+        peak_flows = [];
+        // Store the array
+        storage.setItem( 'peak_flows', JSON.stringify(peak_flows) );
     }
 }
 

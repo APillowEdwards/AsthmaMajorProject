@@ -21,46 +21,51 @@ $this->params['breadcrumbs'][] = $this->title;
 
                 <?php $count = 0 ?>
                 <?php foreach ( $graphs as $graph ): ?>
-                    $('#container-<?= $count++ ?>').highcharts({
-                        chart: {
-                            type: 'spline'
-                        },
-                        title: {
-                            text: '<?= $graph['title'] ?>',
-                        },
-                        subtitle: {
-                            text: ''
-                        },
-                        xAxis: {
-                            type: 'datetime',
-                            pointInterval: 24 * 60 * 60 * 1000,
-                            title: {
-                                text: 'Date',
+                    <?php if ( $graph['data'] != [] && $graph['data'][0]['data'] != [[0,0]] ): ?>
+                        $('#container-<?= $count ?>').highcharts({
+                            chart: {
+                                type: 'spline'
                             },
-                        },
-                        yAxis: {
                             title: {
-                                text: '<?= $graph['yAxisTitle'] ?>'
+                                text: '<?= $graph['title'] ?>',
                             },
-                            min: 0,
-                        },
-                        tooltip: {
-                            headerFormat: '<span style="font-size:10px">{point.key}</span><table>',
-                            pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' +
-                                '<td style="padding:0"><b>{point.y:.0f} <?= $graph['quantityUnit'] ?></b></td></tr>',
-                            footerFormat: '</table>',
-                            shared: true,
-                            useHTML: true,
-                        },
-                        plotOptions: {
-                            spline: {
-                                marker: {
-                                    enabled: true
+                            subtitle: {
+                                text: ''
+                            },
+                            xAxis: {
+                                type: 'datetime',
+                                pointInterval: 24 * 60 * 60 * 1000,
+                                title: {
+                                    text: 'Date',
+                                },
+                            },
+                            yAxis: {
+                                title: {
+                                    text: '<?= $graph['yAxisTitle'] ?>'
+                                },
+                                min: 0,
+                            },
+                            tooltip: {
+                                headerFormat: '<span style="font-size:10px">{point.key}</span><table>',
+                                pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' +
+                                    '<td style="padding:0"><b>{point.y:.0f} <?= $graph['quantityUnit'] ?></b></td></tr>',
+                                footerFormat: '</table>',
+                                shared: true,
+                                useHTML: true,
+                            },
+                            plotOptions: {
+                                spline: {
+                                    marker: {
+                                        enabled: true
+                                    }
                                 }
-                            }
-                        },
-                        series: <?= json_encode( $graph['data'] ) ?>
-                    });
+                            },
+                            series: <?= json_encode( $graph['data'] ) ?>
+                        });
+                    <?php else: ?>
+                        $('#container-<?= $count ?>').hide();
+                    <?php endif ?>
+                    <?php $count++ ?>
                 <?php endforeach ?>
             });
         });

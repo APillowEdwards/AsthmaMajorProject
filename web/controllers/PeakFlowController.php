@@ -66,7 +66,7 @@ class PeakFlowController extends Controller
     {
         if ( Yii::$app->user->identity->isAdmin ) {
             $dataProvider = new ActiveDataProvider([
-                'query' => Exacerbation::find(),
+                'query' => PeakFlow::find(),
             ]);
         } else {
             $dataProvider = new ActiveDataProvider([
