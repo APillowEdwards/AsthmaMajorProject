@@ -135,16 +135,16 @@ class VisualisationController extends Controller
             return $item1['recording_during'] <=> $item2['recording_during'];
         });
 
-        $arr = [
-            [
-                'name' => 'Exacerbations',
-                'data' => array_map(
-                    function ($peak_flow) {
-                        return [ floatval($peak_flow['recorded_during']) * 1000, floatval($peak_flow['average_value']) ];
-                    },
-                    $recordings_per_period
-                )
-            ]
+        $data = array_map(
+            function ($peak_flow) {
+                return [ floatval($peak_flow['recorded_during']) * 1000, floatval($peak_flow['average_value']) ];
+            },
+            $recordings_per_period
+        );
+
+        $arr = $data == [0,0] ? [] : [
+            'name' => 'Your  Peak Flow',
+            'data' => $data,
         ];
 
         return $arr;

@@ -58,7 +58,7 @@ class PeakFlow extends \yii\db\ActiveRecord
         return [
             'id' => 'ID',
             'user_id' => 'User ID',
-            'value' => 'Value',
+            'value' => 'Peak Flow (L/min)',
             'recorded_at' => 'Recorded At',
         ];
     }
