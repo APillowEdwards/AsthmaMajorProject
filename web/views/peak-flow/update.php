@@ -3,20 +3,19 @@
 use yii\helpers\Html;
 
 /* @var $this yii\web\View */
-/* @var $model app\models\Dose */
+/* @var $model app\models\PeakFlow */
 
-$this->title = 'Updating Dose ' . $model->id;
-$this->params['breadcrumbs'][] = ['label' => 'Doses', 'url' => ['index']];
+$this->title = 'Update Peak Flow: {nameAttribute}';
+$this->params['breadcrumbs'][] = ['label' => 'Peak Flows', 'url' => ['index']];
 $this->params['breadcrumbs'][] = ['label' => $model->id, 'url' => ['view', 'id' => $model->id]];
 $this->params['breadcrumbs'][] = 'Update';
 ?>
-<div class="dose-update">
+<div class="peak-flow-update">
 
     <h1><?= Html::encode($this->title) ?></h1>
 
     <?= $this->render('_form', [
         'model' => $model,
-        'steps' => $steps,
     ]) ?>
 
 </div>

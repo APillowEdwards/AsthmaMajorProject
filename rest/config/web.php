@@ -52,9 +52,10 @@ $config = [
             'showScriptName' => false,
             'rules' => [
                 ['class' => 'yii\rest\UrlRule', 'controller' => 'dose', 'pluralize' => false],
-                ['class' => 'yii\rest\UrlRule', 'controller' => 'medication', 'pluralize' => false],
                 ['class' => 'yii\rest\UrlRule', 'controller' => 'exacerbation', 'pluralize' => false],
                 ['class' => 'yii\rest\UrlRule', 'controller' => 'exacerbation-trigger', 'pluralize' => false],
+                ['class' => 'yii\rest\UrlRule', 'controller' => 'medication', 'pluralize' => false],
+                ['class' => 'yii\rest\UrlRule', 'controller' => 'peak-flow', 'pluralize' => false],
                 ['class' => 'yii\rest\UrlRule', 'controller' => 'symptom', 'pluralize' => false],
                 ['class' => 'yii\rest\UrlRule', 'controller' => 'trigger', 'pluralize' => false],
             ],

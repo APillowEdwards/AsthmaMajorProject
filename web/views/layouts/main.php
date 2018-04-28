@@ -55,6 +55,11 @@ AppAsset::register($this);
                 'visible' => (!Yii::$app->user->isGuest && Yii::$app->user->identity->isAdmin),
             ],
             [
+                'label' => 'Record your Peak Flow',
+                'url' => ['/peak-flow/create'],
+                'visible' => (!Yii::$app->user->isGuest && !Yii::$app->user->identity->isAdmin),
+            ],
+            [
                 'label' => 'Triggers',
                 'url' => ['/trigger/index'],
                 'visible' => (!Yii::$app->user->isGuest),
@@ -103,7 +108,7 @@ AppAsset::register($this);
 
 <footer class="footer">
     <div class="container">
-        <p class="pull-left">&copy; My Company <?= date('Y') ?></p>
+        <p class="pull-left"><!--&copy; My Company <?= date('Y') ?>--></p>
 
         <p class="pull-right"><?= Yii::powered() ?></p>
     </div>

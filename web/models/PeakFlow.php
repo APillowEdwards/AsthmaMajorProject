@@ -6,46 +6,30 @@ use Yii;
 use dektrium\user\models\User;
 
 /**
- * This is the model class for table "trigger".
+ * This is the model class for table "peak_flow".
  *
  * @property int $id
- * @property string $name
+ * @property int $user_id
+ * @property int $value
+ * @property string $recorded_at
  */
-class Trigger extends \yii\db\ActiveRecord
+class PeakFlow extends \yii\db\ActiveRecord
 {
     /**
      * @inheritdoc
      */
     public static function tableName()
     {
-        return 'trigger';
+        return 'peak_flow';
     }
 
-    /**
-    * Ensure that the current user either owns the medication or is an
-    * administrator before deletion.
-    */
-    public function beforeDelete()
-    {
-        if (!parent::beforeDelete()) {
-            return false;
-        }
-
-        if ( $this->user->id != Yii::$app->user->id && !Yii::$app->user->identity->isAdmin ) {
-            return false;
-        }
-        return true;
-    }
-
-    /**
-    * Ensure that the current user either owns the medication or is an
-    * administrator before saving.
-    */
     public function beforeSave($insert)
     {
         if (!parent::beforeSave($insert)) {
             return false;
         }
+
+        $this->recorded_at = date('Y-m-d H:i:s');
 
         if ( $this->user->id != Yii::$app->user->id && !Yii::$app->user->identity->isAdmin ) {
             return false;
@@ -59,8 +43,9 @@ class Trigger extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['name'], 'required'],
-            [['name'], 'string', 'max' => 255],
+            [['value',], 'required'],
+            [['user_id', 'value'], 'integer'],
+            [['recorded_at'], 'safe'],
             [['user_id'], 'exist', 'skipOnError' => true, 'targetClass' => User::className(), 'targetAttribute' => ['user_id' => 'id']],
         ];
     }
@@ -72,10 +57,11 @@ class Trigger extends \yii\db\ActiveRecord
     {
         return [
             'id' => 'ID',
-            'name' => 'Name',
+            'user_id' => 'User ID',
+            'value' => 'Value',
+            'recorded_at' => 'Recorded At',
         ];
     }
-
 
     /**
      * @return \yii\db\ActiveQuery

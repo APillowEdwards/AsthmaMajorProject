@@ -70,6 +70,13 @@ use kartik\datetime\DateTimePicker;
                     <input type="checkbox" autocomplete="off" name="trigger[][name]" value="<?= $trigger->name ?>" <?= ExacerbationTrigger::find()->where(['exacerbation_id' => $model->id, 'trigger_id' => $trigger->id])->exists() ? "checked" : ""?>> <?= $trigger->name ?>
                 </label>
             <?php endforeach ?>
+        <?php else: ?>
+          <?php $triggers = $model->triggers ?>
+          <?php foreach ($triggers as $trigger): ?>
+            <label class="btn btn-primary active">
+                <input type="checkbox" autocomplete="off" name="trigger[][name]" value="<?= $trigger->name ?>" <?= ExacerbationTrigger::find()->where(['exacerbation_id' => $model->id, 'trigger_id' => $trigger->id])->exists() ? "checked" : ""?>> <?= $trigger->name ?>
+            </label>
+          <?php endforeach ?>
         <?php endif ?>
         <a class="btn btn-primary active add-trigger-button" href="#" onclick="$('<label class=&#34;btn btn-primary active&#34; style=&#34;color:#333&#34;><input type=&#34;text&#34; autocomplete=&#34;off&#34; name=&#34;trigger[][name]&#34;></label><span class=&#34;btn btn-primary&#34;onclick=&#34;$(this).prev().remove();$(this).remove()&#34;> X </span>').insertBefore('.add-trigger-button')">Add New Trigger</a>
     </div>

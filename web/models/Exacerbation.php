@@ -2,10 +2,10 @@
 
 namespace app\models;
 
-use yii\helpers\ArrayHelper;
-use dektrium\user\models\User;
-use \DateTime;
 use Yii;
+use \DateTime;
+use dektrium\user\models\User;
+use yii\helpers\ArrayHelper;
 
 /**
  * This is the model class for table "exacerbation".

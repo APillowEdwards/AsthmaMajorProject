@@ -135,13 +135,32 @@ class DoseController extends Controller
     public function actionUpdate($id)
     {
         $model = $this->findModel($id);
+        $steps = [];
 
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
             return $this->redirect(['view', 'id' => $model->id]);
         }
 
+        // If Admin, step 1 is choosing the user to create the dose for
+        if ( Yii::$app->user->identity->isAdmin ) {
+            if ( !Yii::$app->request->post('username') ) {
+                $steps['step1'] = true;
+                return $this->render('update', [
+                    'model' => $model,
+                    'steps' => $steps,
+                ]);
+            } else {
+                if ( $user = User::find()->where(['username' => Yii::$app->request->post('username')])->one() ) {
+                    $steps['user_id'] = $user->id;
+                }
+            }
+        }
+
+        // Enter the other details
+        $steps['step2'] = true;
         return $this->render('update', [
             'model' => $model,
+            'steps' => $steps,
         ]);
     }
 
