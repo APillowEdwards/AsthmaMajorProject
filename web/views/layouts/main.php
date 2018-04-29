@@ -40,6 +40,16 @@ AppAsset::register($this);
         'options' => ['class' => 'navbar-nav navbar-right'],
         'items' => [
             [
+                'label' => 'Your Data',
+                'url' => ['/visualisation/index'],
+                'visible' => (!Yii::$app->user->isGuest),
+            ],
+            [
+                'label' => 'Viewer Management',
+                'url' => ['/viewer-viewee/index'],
+                'visible' => (!Yii::$app->user->isGuest),
+            ],
+            [
                 'label' => 'Medication',
                 'url' => ['/medication/index'],
                 'visible' => (!Yii::$app->user->isGuest),

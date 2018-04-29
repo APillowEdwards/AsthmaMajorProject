@@ -12,13 +12,45 @@ use yii\widgets\ActiveForm;
 
     <?php $form = ActiveForm::begin(); ?>
 
-    <?= $form->field($model, 'viewer_id')->textInput() ?>
+    <?php if ( Yii::$app->user->identity->isAdmin ): ?>
+        <?= Html::beginTag('div', ['class' => 'form-group required']) ?>
+            <?= Html::label('Viewee Username') ?>
+            <?php if ( $model->viewee ): ?>
+                <?= Html::textInput('viewee_username', $model->viewee->username, ['class' => 'form-control']) ?>
+            <?php else: ?>
+                <?= Html::textInput('viewee_username', '', ['class' => 'form-control']) ?>
+            <?php endif ?>
 
-    <?= $form->field($model, 'viewee_id')->textInput() ?>
+            <?php if ( isset( $errors['viewee_username'] ) ): ?>
+                <?= Html::beginTag('div', ['class' => 'help-block']) ?>
+                    <?= $errors['viewee_username'] ?>
+                <?= Html::endTag('div') ?>
+            <?php endif ?>
+        <?= Html::endTag('div')?>
+    <?php endif ?>
 
-    <?= $form->field($model, 'viewer_confirmed')->textInput() ?>
+    <?= Html::beginTag('div', ['class' => 'form-group required']) ?>
+        <?= Html::label('Viewer Username') ?>
+        <?php if ( $model->viewer ): ?>
+            <?= Html::textInput('viewer_username', $model->viewer->username, ['class' => 'form-control']) ?>
+        <?php else: ?>
+            <?= Html::textInput('viewer_username', '', ['class' => 'form-control']) ?>
+        <?php endif ?>
 
-    <?= $form->field($model, 'viewee_confirmed')->textInput() ?>
+        <?php if ( isset( $errors['viewer_username'] ) ): ?>
+            <?= Html::beginTag('div', ['class' => 'help-block']) ?>
+                <?= $errors['viewer_username'] ?>
+            <?= Html::endTag('div') ?>
+        <?php endif ?>
+    <?= Html::endTag('div')?>
+
+    <label>Do you confirm that the above user will be able to view your data?</label>
+
+    <?= $form->field($model, 'viewee_confirmed')->checkbox() ?>
+
+    <?php if ( Yii::$app->user->identity->isAdmin ): ?>
+        <?= $form->field($model, 'viewer_confirmed')->checkbox() ?>
+    <?php endif ?>
 
     <div class="form-group">
         <?= Html::submitButton('Save', ['class' => 'btn btn-success']) ?>

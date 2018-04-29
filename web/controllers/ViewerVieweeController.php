@@ -4,9 +4,11 @@ namespace app\controllers;
 
 use Yii;
 use app\models\ViewerViewee;
+use dektrium\user\models\User;
 use yii\data\ActiveDataProvider;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
+use yii\filters\AccessControl;
 use yii\filters\VerbFilter;
 
 /**
@@ -20,6 +22,35 @@ class ViewerVieweeController extends Controller
     public function behaviors()
     {
         return [
+            'access' => [
+                'class' => AccessControl::className(),
+                'only' => ['index', 'create', 'view', 'update', 'delete'],
+                'rules' => [
+                    [
+                        'actions' => ['index', 'create'],
+                        'allow' => true,
+                        'roles' => ['@'],
+                    ],
+                    [
+                        'actions' => ['update'],
+                        'allow' => true,
+                        'roles' => ['@'],
+                        'matchCallback' => function ($rule, $action) {
+                            // Only viewees and admins can edit requests
+                            return Yii::$app->user->identity->isAdmin || ( Yii::$app->user->id == ViewerViewee::findOne(Yii::$app->request->get('id'))->viewee->id );
+                        },
+                    ],
+                    [
+                        'actions' => ['view', 'delete'],
+                        'allow' => true,
+                        'roles' => ['@'],
+                        'matchCallback' => function ($rule, $action) {
+                            // Viewees, the assosiated viewer and admins can delete and view requests
+                            return Yii::$app->user->identity->isAdmin || ( Yii::$app->user->id == ViewerViewee::findOne(Yii::$app->request->get('id'))->viewee->id ) || ( Yii::$app->user->id == ViewerViewee::findOne(Yii::$app->request->get('id'))->viewer->id );
+                        },
+                    ],
+                ],
+            ],
             'verbs' => [
                 'class' => VerbFilter::className(),
                 'actions' => [
@@ -50,16 +81,27 @@ class ViewerVieweeController extends Controller
      */
     public function actionIndex()
     {
-        $viewerDataProvider = new ActiveDataProvider([
-            'query' => ViewerViewee::find()->where(['viewer_id' => Yii::$app->user->identity->id]),
+        $viewRequestDataProvider = new ActiveDataProvider ([
+            'query' => ViewerViewee::find()->where(['viewee_id' => Yii::$app->user->identity->id, 'viewer_confirmed' => false]), // Pending view requests
+            'pagination' => false,
         ]);
-
-        $vieweeDataProvider = new ActiveDataProvider([
-            'query' => ViewerViewee::find()->where(['viewer_id' => Yii::$app->user->identity->id]),
+        $vieweeRequestDataProvider = new ActiveDataProvider ([
+            'query' => ViewerViewee::find()->where(['viewer_id' => Yii::$app->user->identity->id, 'viewer_confirmed' => false]), // View requests to be confirmed
+            'pagination' => false,
+        ]);
+        $viewerDataProvider = new ActiveDataProvider ([
+            'query' => ViewerViewee::find()->where(['viewee_id' => Yii::$app->user->identity->id, 'viewer_confirmed' => true]), // Confimed viewers
+            'pagination' => false,
+        ]);
+        $vieweeDataProvider = new ActiveDataProvider ([
+            'query' => ViewerViewee::find()->where(['viewer_id' => Yii::$app->user->identity->id, 'viewer_confirmed' => true]), // Confirmed viewees
+            'pagination' => false,
         ]);
 
         return $this->render('index', [
+            'viewRequestDataProvider' => $viewRequestDataProvider,
             'viewerDataProvider' => $viewerDataProvider,
+            'vieweeRequestDataProvider' => $vieweeRequestDataProvider,
             'vieweeDataProvider' => $vieweeDataProvider,
         ]);
     }
@@ -86,11 +128,55 @@ class ViewerVieweeController extends Controller
     {
         $model = new ViewerViewee();
 
-        if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            return $this->redirect(['view', 'id' => $model->id]);
+        $errors = [];
+
+        if ( $model->load(Yii::$app->request->post()) ){
+            if ( Yii::$app->request->isPost ) {
+                if ( Yii::$app->user->identity->isAdmin ) {
+                    $is_username_error = false;
+                    // Viewer Username
+                    $username = Yii::$app->request->post('viewer_username');
+                    if ( $user = User::find()->where(['username' => $username])->one() ) {
+                        $model->viewer_id = $user->id;
+                    } else {
+                        if ( $username == '' ) {
+                            $errors['viewer_username'] = 'Username is a required field.';
+                        } else {
+                            $errors['viewer_username'] = "'" . $username . "' is not a valid username.";
+                        }
+                        $is_username_error = true;
+                    }
+
+                    // Viewee Username
+                    $username = Yii::$app->request->post('viewee_username');
+                    if ( $user = User::find()->where(['username' => $username])->one() ) {
+                        $model->viewee_id = $user->id;
+                    } else {
+                        if ( $username == '' ) {
+                            $errors['viewee_username'] = 'Username is a required field.';
+                        } else {
+                            $errors['viewee_username'] = "'" . $username . "' is not a valid username.";
+                        }
+                        $is_username_error = true;
+                    }
+
+                    if ( $is_username_error ) {
+                        return $this->render('create', [
+                            'errors' => $errors,
+                            'model' => $model,
+                        ]);
+                    }
+                } else {
+                    $model->user_id = Yii::$app->user->id;
+                }
+            }
+            if ( $model->save() ) {
+                return $this->redirect(['view', 'id' => $model->id]);
+            }
         }
 
         return $this->render('create', [
+            'errors' => $errors,
             'model' => $model,
         ]);
     }
@@ -105,12 +191,55 @@ class ViewerVieweeController extends Controller
     public function actionUpdate($id)
     {
         $model = $this->findModel($id);
+        $errors = [];
 
-        if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            return $this->redirect(['view', 'id' => $model->id]);
+        if ( $model->load(Yii::$app->request->post()) ){
+            if ( Yii::$app->request->isPost ) {
+                if ( Yii::$app->user->identity->isAdmin ) {
+                    $is_username_error = false;
+                    // Viewer Username
+                    $username = Yii::$app->request->post('viewer_username');
+                    if ( $user = User::find()->where(['username' => $username])->one() ) {
+                        $model->user_id = $user->id;
+                    } else {
+                        if ( $username == '' ) {
+                            $errors['viewer_username'] = 'Username is a required field.';
+                        } else {
+                            $errors['viewer_username'] = "'" . $username . "' is not a valid username.";
+                        }
+                        $is_username_error = true;
+                    }
+
+                    // Viewee Username
+                    $username = Yii::$app->request->post('viewee_username');
+                    if ( $user = User::find()->where(['username' => $username])->one() ) {
+                        $model->user_id = $user->id;
+                    } else {
+                        if ( $username == '' ) {
+                            $errors['viewee_username'] = 'Username is a required field.';
+                        } else {
+                            $errors['viewee_username'] = "'" . $username . "' is not a valid username.";
+                        }
+                        $is_username_error = true;
+                    }
+
+                    if ( $is_username_error ) {
+                        return $this->render('update', [
+                            'errors' => $errors,
+                            'model' => $model,
+                        ]);
+                    }
+                } else {
+                    $model->user_id = Yii::$app->user->id;
+                }
+            }
+            if ( $model->save() ) {
+                return $this->redirect(['view', 'id' => $model->id]);
+            }
         }
 
         return $this->render('update', [
+            'errors' => $errors,
             'model' => $model,
         ]);
     }
