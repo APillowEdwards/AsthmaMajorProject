@@ -45,7 +45,7 @@ $config = [
             'enablePrettyUrl' => true,
             'showScriptName' => false,
             'rules' => [
-
+                '(viewer|viewee)/<action:\w+>' => 'viewer-viewee/<action>', // Doesn't work... hmmm....
             ],
         ],
         'view' => [
