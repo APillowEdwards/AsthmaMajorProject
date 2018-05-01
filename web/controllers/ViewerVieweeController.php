@@ -132,21 +132,22 @@ class ViewerVieweeController extends Controller
 
         if ( $model->load(Yii::$app->request->post()) ){
             if ( Yii::$app->request->isPost ) {
-                if ( Yii::$app->user->identity->isAdmin ) {
-                    $is_username_error = false;
-                    // Viewer Username
-                    $username = Yii::$app->request->post('viewer_username');
-                    if ( $user = User::find()->where(['username' => $username])->one() ) {
-                        $model->viewer_id = $user->id;
-                    } else {
-                        if ( $username == '' ) {
-                            $errors['viewer_username'] = 'Username is a required field.';
-                        } else {
-                            $errors['viewer_username'] = "'" . $username . "' is not a valid username.";
-                        }
-                        $is_username_error = true;
-                    }
 
+                $is_username_error = false;
+                // Viewer Username
+                $username = Yii::$app->request->post('viewer_username');
+                if ( $user = User::find()->where(['username' => $username])->one() ) {
+                    $model->viewer_id = $user->id;
+                } else {
+                    if ( $username == '' ) {
+                        $errors['viewer_username'] = 'Username is a required field.';
+                    } else {
+                        $errors['viewer_username'] = "'" . $username . "' is not a valid username.";
+                    }
+                    $is_username_error = true;
+                }
+
+                if ( Yii::$app->user->identity->isAdmin ) {
                     // Viewee Username
                     $username = Yii::$app->request->post('viewee_username');
                     if ( $user = User::find()->where(['username' => $username])->one() ) {
@@ -160,25 +161,28 @@ class ViewerVieweeController extends Controller
                         $is_username_error = true;
                     }
 
-                    if ( $is_username_error ) {
-                        return $this->render('create', [
-                            'errors' => $errors,
-                            'model' => $model,
-                        ]);
-                    }
                 } else {
-                    $model->user_id = Yii::$app->user->id;
+                    $model->viewee_id = Yii::$app->user->id;
+                    $model->viewer_confirmed = false;
+                }
+
+                if ( $is_username_error ) {
+                    return $this->render('create', [
+                        'errors' => $errors,
+                        'model' => $model,
+                    ]);
                 }
             }
             if ( $model->save() ) {
-                return $this->redirect(['view', 'id' => $model->id]);
+                return $this->redirect(['index']);
             }
         }
 
-        return $this->render('create', [
-            'errors' => $errors,
-            'model' => $model,
-        ]);
+        echo "<pre>";print_r($model->getErrors());echo "</pre>";
+        //return $this->render('create', [
+        //    'errors' => $errors,
+        //    'model' => $model,
+        //]);
     }
 
     /**
@@ -195,25 +199,27 @@ class ViewerVieweeController extends Controller
 
         if ( $model->load(Yii::$app->request->post()) ){
             if ( Yii::$app->request->isPost ) {
-                if ( Yii::$app->user->identity->isAdmin ) {
-                    $is_username_error = false;
-                    // Viewer Username
-                    $username = Yii::$app->request->post('viewer_username');
-                    if ( $user = User::find()->where(['username' => $username])->one() ) {
-                        $model->user_id = $user->id;
+
+                $is_username_error = false;
+                // Viewer Username
+                $username = Yii::$app->request->post('viewer_username');
+                if ( $user = User::find()->where(['username' => $username])->one() ) {
+                    $model->viewer_id = $user->id;
+                } else {
+                    if ( $username == '' ) {
+                        $errors['viewer_username'] = 'Username is a required field.';
                     } else {
-                        if ( $username == '' ) {
-                            $errors['viewer_username'] = 'Username is a required field.';
-                        } else {
-                            $errors['viewer_username'] = "'" . $username . "' is not a valid username.";
-                        }
-                        $is_username_error = true;
+                        $errors['viewer_username'] = "'" . $username . "' is not a valid username.";
                     }
+                    $is_username_error = true;
+                }
+
+                if ( Yii::$app->user->identity->isAdmin ) {
 
                     // Viewee Username
                     $username = Yii::$app->request->post('viewee_username');
                     if ( $user = User::find()->where(['username' => $username])->one() ) {
-                        $model->user_id = $user->id;
+                        $model->viewee_id = $user->id;
                     } else {
                         if ( $username == '' ) {
                             $errors['viewee_username'] = 'Username is a required field.';
@@ -223,18 +229,19 @@ class ViewerVieweeController extends Controller
                         $is_username_error = true;
                     }
 
-                    if ( $is_username_error ) {
-                        return $this->render('update', [
-                            'errors' => $errors,
-                            'model' => $model,
-                        ]);
-                    }
                 } else {
-                    $model->user_id = Yii::$app->user->id;
+                    $model->viewee_id = Yii::$app->user->id;
+                }
+
+                if ( $is_username_error ) {
+                    return $this->render('update', [
+                        'errors' => $errors,
+                        'model' => $model,
+                    ]);
                 }
             }
             if ( $model->save() ) {
-                return $this->redirect(['view', 'id' => $model->id]);
+                return $this->redirect(['index']);
             }
         }
 
@@ -242,6 +249,26 @@ class ViewerVieweeController extends Controller
             'errors' => $errors,
             'model' => $model,
         ]);
+    }
+
+    /**
+     * Displays a single ViewerViewee model.
+     * @param integer $id
+     * @return mixed
+     * @throws NotFoundHttpException if the model cannot be found
+     */
+    public function actionConfirm($id)
+    {
+        $model = $this->findModel($id);
+
+        $model->viewer_confirmed = "1";
+
+        if ( $model->save() ) {
+            return $this->redirect(['index']);
+        }
+
+        echo "<pre>";print_r($model->getErrors());echo "</pre>";
+        //return $this->redirect(['index']);
     }
 
     /**

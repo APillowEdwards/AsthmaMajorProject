@@ -4,9 +4,10 @@ use yii\helpers\Html;
 use yii\grid\GridView;
 
 /* @var $this yii\web\View */
+/* @var $username string */
 /* @var $graphs [] */
 
-$this->title = 'Your Data';
+$this->title = $username . "'s Data";
 $this->params['breadcrumbs'][] = $this->title;
 ?>
 

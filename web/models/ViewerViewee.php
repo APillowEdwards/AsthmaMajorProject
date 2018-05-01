@@ -32,7 +32,7 @@ class ViewerViewee extends \yii\db\ActiveRecord
         return [
             [['viewer_id', 'viewee_id', 'viewer_confirmed'], 'required'],
             [['viewer_id', 'viewee_id'], 'integer'],
-            [['viewer_confirmed', 'viewee_confirmed'], 'string', 'max' => 1],
+            [['viewer_confirmed', 'viewee_confirmed'], 'boolean'],
             [['viewee_id'], 'exist', 'skipOnError' => true, 'targetClass' => User::className(), 'targetAttribute' => ['viewee_id' => 'id']],
             [['viewer_id'], 'exist', 'skipOnError' => true, 'targetClass' => User::className(), 'targetAttribute' => ['viewer_id' => 'id']],
         ];

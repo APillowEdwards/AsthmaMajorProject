@@ -80,11 +80,6 @@ AppAsset::register($this);
                 'visible' => (!Yii::$app->user->isGuest),
             ],
             [
-                'label' => 'Your Profile',
-                'url' => ['/user/' . (Yii::$app->user->isGuest ? '' : Yii::$app->user->identity->id)],
-                'visible' => (!Yii::$app->user->isGuest),
-            ],
-            [
                 'label' => 'Admin Panel',
                 'url' => ['/user/admin/index'],
                 'visible' => (!Yii::$app->user->isGuest && Yii::$app->user->identity->isAdmin),

@@ -7,7 +7,7 @@ use yii\grid\GridView;
 /* @var $this yii\web\View */
 /* @var $dataProvider yii\data\ActiveDataProvider */
 
-$this->title = 'Viewer Viewees';
+$this->title = 'Viewers and Viewees';
 $this->params['breadcrumbs'][] = $this->title;
 ?>
 <div class="viewer-viewee-index">
@@ -77,7 +77,7 @@ $this->params['breadcrumbs'][] = $this->title;
                     },
                 ],
                 [
-                    'header' => 'Action Request',
+                    'header' => 'Remove Viewer',
                     'format' => 'raw',
                     'value' => function ($model) {
                         return
@@ -100,11 +100,17 @@ $this->params['breadcrumbs'][] = $this->title;
                     },
                 ],
                 [
-                    'header' => 'Action Request',
+                    'header' => 'View Data',
                     'format' => 'raw',
                     'value' => function ($model) {
-                        return
-                            '<a href="' . Url::toRoute(['viewer-viewee/delete', 'id' => $model->id]) . '" class="btn btn-primary" title="Remove" aria-label="Remove" data-pjax="0" data-confirm="Are you sure you want to remove these permissions?" data-method="post">Remove</a>';
+                        return '<a href="' . Url::toRoute(['visualisation/view-as', 'id' => $model->viewee_id]) . '" class="btn btn-primary" title="View" aria-label="View" data-pjax="0">View</a>';
+                    }
+                ],
+                [
+                    'header' => 'Remove Viewee',
+                    'format' => 'raw',
+                    'value' => function ($model) {
+                        return '<a href="' . Url::toRoute(['viewer-viewee/delete', 'id' => $model->id]) . '" class="btn btn-primary" title="Remove" aria-label="Remove" data-pjax="0" data-confirm="Are you sure you want to remove these permissions?" data-method="post">Remove</a>';
                     }
                 ]
             ],
