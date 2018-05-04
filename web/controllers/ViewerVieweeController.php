@@ -178,11 +178,10 @@ class ViewerVieweeController extends Controller
             }
         }
 
-        echo "<pre>";print_r($model->getErrors());echo "</pre>";
-        //return $this->render('create', [
-        //    'errors' => $errors,
-        //    'model' => $model,
-        //]);
+        return $this->render('create', [
+            'errors' => $errors,
+            'model' => $model,
+        ]);
     }
 
     /**

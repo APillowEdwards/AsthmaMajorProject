@@ -8,9 +8,10 @@ var dbShell;
 
 var storage = window.localStorage;
 
-var base_url = 'http://192.168.0.46/Asthma/rest/web/';
+var base_url = 'http://andrewedwards.co.uk/asthma-final/rest/web/';
 
 /* Fix to remove proxy in Ajax calls, by 'mesompi' on StackOverflow */
+// https://stackoverflow.com/questions/39097721/how-fix-or-disable-proxy-in-phonegap/40590241#40590241
 (function() {
     var xhr = {};
     xhr.open = XMLHttpRequest.prototype.open;

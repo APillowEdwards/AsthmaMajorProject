@@ -15,7 +15,7 @@
 
               loadMedications();
 
-              // Populate meds_by_dbid and new_meds with medications, where the index is equal to db_id for m_b_di
+              // Populate meds_by_dbid and new_meds with medications, where the index is equal to db_id for meds_by_dbid
               for (var i = 0, len = medications.length; i < len; i++) {
                   if ( medications[i].db_id > 0 ) {
                       meds_by_dbid[ medications[i].db_id ] = Object.assign({}, medications[i], {'local_id': i});
@@ -39,7 +39,7 @@
                           // Make a comparison
                           // Online takes precedence by 10 seconds, to avoid rounding errors with the comparison
                           if ( meds_by_dbid[i].updated_at - 10000 <= new Date(online_meds_by_id[i].updated_at).getTime() ) {
-                              // Online takes precendence, save online version
+                              // Online takes precedence, save online version
                               online_meds_by_id[i]['db_id'] = online_meds_by_id[i]['id'];
                               delete online_meds_by_id[i]['id'];
                               delete online_meds_by_id[i]['user_id'];
@@ -48,7 +48,7 @@
 
                               saveMedication(online_meds_by_id[i], meds_by_dbid[i].local_id, false);
                           } else {
-                              // Local takes precendence
+                              // Local takes precedence
                               ajaxPatchMedication(meds_by_dbid[i], meds_by_dbid[ meds_by_dbid[i].local_id ]);
                           }
                       } else {
@@ -68,7 +68,7 @@
               for (var i = 0, len = new_meds.length; i < len; i++) {
                   ajaxPostMedication( new_meds[i], new_meds[i].local_id );
               }
-              window.plugins.toast.showLongBottom('Medications synched!');
+              window.plugins.toast.showLongBottom('Medications synced!');
 
               // Push new Doses
               loadDoses();

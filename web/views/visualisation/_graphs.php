@@ -4,6 +4,14 @@ use yii\helpers\Html;
 
 /* @var $this yii\web\View */
 /* @var $graphs [] */
+
+/**
+* HighCharts library used under Creative Commons licence 3.0, for non-commercial use
+* https://creativecommons.org/licenses/by-nc/3.0/legalcode
+*
+* Available from:
+* https://www.highcharts.com/
+*/
 ?>
 
 <?php $count = 0 ?>
